@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import soundManager from '../utils/SoundManager';
 
-const Lobby = ({ socket, onJoin }) => {
+const Lobby = ({ socket, onJoin, serverUrl }) => {
     const [playerName, setPlayerName] = useState('');
     const [roomCode, setRoomCode] = useState('');
     const [mode, setMode] = useState('MENU'); // MENU, JOIN, WAITING
@@ -87,6 +87,9 @@ const Lobby = ({ socket, onJoin }) => {
             )}
 
             {error && <p className="error-message">{error}</p>}
+            <div style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#555' }}>
+                Server: {serverUrl}
+            </div>
         </motion.div>
     );
 };

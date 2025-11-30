@@ -76,7 +76,7 @@ const GameController = () => {
     };
 
     if (!room) {
-        return <Lobby socket={socket} />;
+        return <Lobby socket={socket} serverUrl={SERVER_URL} />;
     }
 
     // Waiting Room Logic
