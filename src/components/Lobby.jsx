@@ -9,6 +9,15 @@ const Lobby = ({ socket, onJoin, serverUrl }) => {
     const [error, setError] = useState('');
     const [currentRoom, setCurrentRoom] = useState(null);
 
+    React.useEffect(() => {
+        socket.on('error', (msg) => {
+            setError(msg);
+            setMode('MENU');
+            soundManager.playFailure();
+        });
+        return () => socket.off('error');
+    }, [socket]);
+
     const handleCreate = () => {
         if (!playerName) { setError('Name Required'); return; }
         soundManager.playClick();
