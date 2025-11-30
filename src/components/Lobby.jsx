@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import soundManager from '../utils/SoundManager';
+import { getSessionId } from '../utils/session';
 
 const Lobby = ({ socket, onJoin, serverUrl }) => {
-    const [playerName, setPlayerName] = useState('');
+    const [playerName, setPlayerName] = useState(localStorage.getItem('rm_playerName') || '');
     const [roomCode, setRoomCode] = useState('');
     const [mode, setMode] = useState('MENU'); // MENU, JOIN, WAITING
     const [error, setError] = useState('');
@@ -21,14 +19,18 @@ const Lobby = ({ socket, onJoin, serverUrl }) => {
     const handleCreate = () => {
         if (!playerName) { setError('Name Required'); return; }
         soundManager.playClick();
-        socket.emit('create_room', { playerName });
+        localStorage.setItem('rm_playerName', playerName);
+        const sessionId = getSessionId();
+        socket.emit('create_room', { playerName, sessionId });
         setMode('WAITING');
     };
 
     const handleJoin = () => {
         if (!playerName || !roomCode) { setError('Name & Code Required'); return; }
         soundManager.playClick();
-        socket.emit('join_room', { roomCode: roomCode.toUpperCase(), playerName });
+        localStorage.setItem('rm_playerName', playerName);
+        const sessionId = getSessionId();
+        socket.emit('join_room', { roomCode: roomCode.toUpperCase(), playerName, sessionId });
         setMode('WAITING');
     };
 

@@ -6,6 +6,7 @@ import RoleReveal from './RoleReveal';
 import ScoreBoard from './ScoreBoard';
 import soundManager from '../utils/SoundManager';
 import Card from './Card';
+import { getSessionId, saveRoomCode, getLastRoomCode, clearRoomCode } from '../utils/session';
 
 // Connect to server (Environment Variable or Localhost fallback)
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
@@ -17,18 +18,45 @@ const GameController = () => {
     const [room, setRoom] = useState(null);
     const [playerId, setPlayerId] = useState(null);
     const [notification, setNotification] = useState('');
+    const [isReconnecting, setIsReconnecting] = useState(false);
 
     useEffect(() => {
         socket.on('connect', () => {
             setPlayerId(socket.id);
+            // Attempt Auto-Reconnect
+            const lastRoom = getLastRoomCode();
+            if (lastRoom) {
+                setIsReconnecting(true);
+                // We need to send sessionId to rejoin. 
+                // Since we don't have playerName here easily (unless we store it too), 
+                // we rely on the server finding us by sessionId.
+                // But join_room expects playerName. 
+                // Let's send a dummy name or handle it on server?
+                // Better: Store name in localStorage too.
+                const savedName = localStorage.getItem('rm_playerName') || 'Agent';
+                const sessionId = getSessionId();
+                socket.emit('join_room', { roomCode: lastRoom, playerName: savedName, sessionId });
+            }
         });
 
         socket.on('room_created', ({ roomCode, state }) => {
             setRoom(state);
+            saveRoomCode(roomCode);
+            setIsReconnecting(false);
         });
 
         socket.on('state_update', (updatedRoom) => {
             setRoom(updatedRoom);
+            saveRoomCode(updatedRoom.code);
+            setIsReconnecting(false);
+        });
+
+        socket.on('error', (msg) => {
+            // If error during reconnect, clear storage
+            if (isReconnecting) {
+                clearRoomCode();
+                setIsReconnecting(false);
+            }
         });
 
         socket.on('correct_guess', ({ message }) => {
@@ -51,6 +79,7 @@ const GameController = () => {
             socket.off('connect');
             socket.off('room_created');
             socket.off('state_update');
+            socket.off('error');
             socket.off('correct_guess');
             socket.off('wrong_guess');
             socket.off('game_started');
@@ -76,7 +105,12 @@ const GameController = () => {
     };
 
     if (!room) {
-        return <Lobby socket={socket} serverUrl={SERVER_URL} />;
+        return (
+            <>
+                {isReconnecting && <div className="notification">Reconnecting to Mission...</div>}
+                <Lobby socket={socket} serverUrl={SERVER_URL} />
+            </>
+        );
     }
 
     // Waiting Room Logic
@@ -100,15 +134,16 @@ const GameController = () => {
     }
 
     // Find My Player Object
+    // IMPORTANT: With reconnection, socket.id changes. 
+    // But we update it in the room state on server.
+    // So room.players should have the NEW socket.id for me.
     const myPlayer = room.players.find(p => p.id === playerId);
-    if (!myPlayer) return <div>Error: Player not found</div>;
 
-    // Role Reveal Phase (Wait, we can just show role on screen now)
-    // Or keep a "Reveal" step?
-    // Let's keep a Reveal step but it's personal.
+    // Fallback: If for some reason socket.id mismatch (race condition), try matching by SessionID
+    // const mySessionId = getSessionId();
+    // const myPlayer = room.players.find(p => p.sessionId === mySessionId);
 
-    // Actually, let's simplify. If GameState is PLAY, show the board.
-    // We can show the role in a corner or have a "Tap to view role" card.
+    if (!myPlayer) return <div>Error: Player data sync failure. Refreshing...</div>;
 
     if (room.gameState === 'RESULT') {
         return <ScoreBoard players={room.players} history={[]} onNextRound={handleNextRound} />;
@@ -151,11 +186,6 @@ const GameController = () => {
                 <h3>Crew Status</h3>
                 <div className="players-grid">
                     {room.players.map((p, idx) => {
-                        // Logic for visibility
-                        // I can see:
-                        // 1. Myself (Already shown above, maybe skip here or show as "ME")
-                        // 2. Revealed roles (room.revealedRoles[idx])
-
                         if (p.id === playerId) return null; // Skip self in grid
 
                         const isRevealed = room.revealedRoles[idx];

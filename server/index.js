@@ -27,14 +27,21 @@ const generateRoomCode = () => Math.random().toString(36).substring(2, 6).toUppe
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    socket.on('create_room', ({ playerName }) => {
+    socket.on('create_room', ({ playerName, sessionId }) => {
         const roomCode = generateRoomCode();
         rooms[roomCode] = {
             code: roomCode,
-            players: [{ id: socket.id, name: playerName, score: 0, totalScore: 0, role: null }],
-            gameState: 'LOBBY', // LOBBY, PLAY, RESULT
+            players: [{
+                id: socket.id,
+                sessionId, // Store stable ID
+                name: playerName,
+                score: 0,
+                totalScore: 0,
+                role: null
+            }],
+            gameState: 'LOBBY',
             chainIndex: 0,
-            revealedRoles: {}, // { playerId: role }
+            revealedRoles: {},
             message: 'Waiting for players...',
             round: 1
         };
@@ -42,14 +49,38 @@ io.on('connection', (socket) => {
         socket.emit('room_created', { roomCode, state: rooms[roomCode] });
     });
 
-    socket.on('join_room', ({ roomCode, playerName }) => {
+    socket.on('join_room', ({ roomCode, playerName, sessionId }) => {
         const room = rooms[roomCode];
-        if (room && room.gameState === 'LOBBY' && room.players.length < 5) {
-            room.players.push({ id: socket.id, name: playerName, score: 0, totalScore: 0, role: null });
+        if (!room) {
+            socket.emit('error', 'Room not found');
+            return;
+        }
+
+        // Check for Reconnection
+        const existingPlayer = room.players.find(p => p.sessionId === sessionId);
+
+        if (existingPlayer) {
+            // RECONNECTION LOGIC
+            existingPlayer.id = socket.id; // Update socket ID
+            socket.join(roomCode);
+            io.to(roomCode).emit('state_update', room);
+            // Send specific welcome back message to this user? 
+            // state_update is enough usually.
+            console.log(`Player ${existingPlayer.name} reconnected to ${roomCode}`);
+        } else if (room.gameState === 'LOBBY' && room.players.length < 5) {
+            // NEW PLAYER JOIN
+            room.players.push({
+                id: socket.id,
+                sessionId,
+                name: playerName,
+                score: 0,
+                totalScore: 0,
+                role: null
+            });
             socket.join(roomCode);
             io.to(roomCode).emit('state_update', room);
         } else {
-            socket.emit('error', 'Room not found or full');
+            socket.emit('error', 'Room full or game in progress');
         }
     });
 
