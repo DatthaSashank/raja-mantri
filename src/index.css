@@ -1,0 +1,310 @@
+:root {
+    --royal-red: #8B0000;
+    --royal-gold: #FFD700;
+    --royal-blue: #4169E1;
+    --cream: #FFFDD0;
+    --text-dark: #2c3e50;
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    background-color: var(--cream);
+    color: var(--text-dark);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+#root {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+}
+
+h1,
+h2,
+h3 {
+    font-family: var(--font-heading);
+    color: var(--royal-red);
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+button {
+    background-color: var(--royal-red);
+    color: var(--royal-gold);
+    border: 2px solid var(--royal-gold);
+    padding: 0.8rem 1.6rem;
+    font-size: 1rem;
+    font-family: var(--font-heading);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: var(--royal-gold);
+    color: var(--royal-red);
+    border-color: var(--royal-red);
+}
+
+/* Mute Button */
+.mute-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--royal-red);
+    box-shadow: none;
+}
+
+.mute-btn:hover {
+    background: rgba(139, 0, 0, 0.1);
+    border: none;
+}
+
+/* Card Component */
+.card-container {
+    width: 200px;
+    height: 300px;
+    perspective: 1000px;
+    cursor: pointer;
+    margin: 1rem;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+}
+
+.card-front,
+.card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--royal-gold);
+}
+
+.card-front {
+    background-color: var(--royal-red);
+    color: var(--royal-gold);
+}
+
+.card-back {
+    background-color: var(--cream);
+    color: var(--royal-red);
+    transform: rotateY(180deg);
+}
+
+.card-pattern {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.royal-emblem {
+    font-size: 3rem;
+}
+
+.role-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+/* Player Setup */
+.setup-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid var(--royal-gold);
+}
+
+.player-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    color: var(--royal-blue);
+    font-weight: bold;
+}
+
+.input-group input {
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--royal-gold);
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+}
+
+.error-message {
+    color: var(--royal-red);
+    font-size: 0.9rem;
+}
+
+.start-btn {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+/* Guessing Phase */
+.guessing-container {
+    text-align: center;
+}
+
+.instruction {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.suspects-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.suspect-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    border: 2px solid transparent;
+    width: 150px;
+    transition: border-color 0.3s;
+}
+
+.suspect-card:hover {
+    border-color: var(--royal-red);
+}
+
+.avatar {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* ScoreBoard */
+.scoreboard-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+}
+
+.results-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.table-header,
+.table-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    padding: 0.8rem;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+}
+
+.table-header {
+    font-weight: bold;
+    color: var(--royal-red);
+    border-bottom: 2px solid var(--royal-gold);
+}
+
+.role-reveal {
+    font-weight: bold;
+    color: var(--royal-blue);
+}
+
+.total-score {
+    font-weight: bold;
+    color: var(--royal-gold);
+    background: var(--royal-red);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    color: white;
+}
+
+.next-round-btn {
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.history-section {
+    text-align: left;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.history-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-item {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid #f9f9f9;
+    font-size: 0.9rem;
+}
+
+.mini-score {
+    color: #666;
+}
