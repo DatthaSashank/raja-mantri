@@ -1,3 +1,6 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import soundManager from '../utils/SoundManager';
 import { getSessionId } from '../utils/session';
 
 const Lobby = ({ socket, onJoin, serverUrl }) => {
