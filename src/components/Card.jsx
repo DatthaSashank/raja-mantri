@@ -14,13 +14,13 @@ const Card = ({ title, content, isRevealed, onClick, icon }) => {
                 className="card-inner"
                 initial={false}
                 animate={{ rotateY: isRevealed ? 180 : 0 }}
-                transition={{ duration: 0.6, animationDirection: 'normal' }}
+                transition={{ duration: 0.6, type: "spring", stiffness: 50 }}
                 style={{ transformStyle: 'preserve-3d' }}
             >
                 <div className="card-front">
                     <div className="card-pattern">
-                        <span className="royal-emblem">⚜️</span>
-                        <h3>Tap to Reveal</h3>
+                        <span className="holo-icon">💠</span>
+                        <h3>LOCKED</h3>
                     </div>
                 </div>
                 <div className="card-back">

@@ -18,7 +18,7 @@ class SoundManager {
         return this.isMuted;
     }
 
-    playTone(freq, type, duration, startTime = 0) {
+    playTone(freq, type, duration, startTime = 0, vol = 0.1) {
         if (this.isMuted || !this.audioContext) return;
 
         const osc = this.audioContext.createOscillator();
@@ -27,7 +27,7 @@ class SoundManager {
         osc.type = type;
         osc.frequency.setValueAtTime(freq, this.audioContext.currentTime + startTime);
 
-        gain.gain.setValueAtTime(0.1, this.audioContext.currentTime + startTime);
+        gain.gain.setValueAtTime(vol, this.audioContext.currentTime + startTime);
         gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + startTime + duration);
 
         osc.connect(gain);
@@ -39,61 +39,81 @@ class SoundManager {
 
     playClick() {
         this.init();
-        this.playTone(800, 'sine', 0.1);
+        // High tech blip
+        this.playTone(1200, 'sine', 0.05, 0, 0.05);
     }
 
     playFlip() {
         this.init();
-        // Simulate a "whoosh" with a filtered noise buffer or just a low sine sweep
-        // Simple sweep for now
+        // Sci-fi whoosh
         if (this.isMuted || !this.audioContext) return;
         const osc = this.audioContext.createOscillator();
         const gain = this.audioContext.createGain();
 
-        osc.frequency.setValueAtTime(200, this.audioContext.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(600, this.audioContext.currentTime + 0.2);
+        // Filtered noise simulation using sawtooth
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(100, this.audioContext.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, this.audioContext.currentTime + 0.3);
 
         gain.gain.setValueAtTime(0.05, this.audioContext.currentTime);
-        gain.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.2);
+        gain.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.3);
 
         osc.connect(gain);
         gain.connect(this.audioContext.destination);
 
         osc.start();
-        osc.stop(this.audioContext.currentTime + 0.2);
+        osc.stop(this.audioContext.currentTime + 0.3);
     }
 
     playReveal() {
         this.init();
-        // Arpeggio
-        this.playTone(523.25, 'sine', 0.3, 0);   // C5
-        this.playTone(659.25, 'sine', 0.3, 0.1); // E5
-        this.playTone(783.99, 'sine', 0.4, 0.2); // G5
+        // Computer processing / Reveal sound
+        this.playTone(800, 'square', 0.1, 0, 0.05);
+        this.playTone(1200, 'square', 0.1, 0.1, 0.05);
+        this.playTone(2000, 'square', 0.3, 0.2, 0.05);
     }
 
     playSuccess() {
         this.init();
-        // Major Chord Fanfare
-        this.playTone(523.25, 'triangle', 0.4, 0);
-        this.playTone(659.25, 'triangle', 0.4, 0.1);
-        this.playTone(783.99, 'triangle', 0.4, 0.2);
-        this.playTone(1046.50, 'triangle', 0.8, 0.3); // C6
+        // Positive Warp
+        this.playTone(440, 'sine', 0.5, 0, 0.1);
+        this.playTone(554, 'sine', 0.5, 0.1, 0.1); // C#
+        this.playTone(659, 'sine', 0.8, 0.2, 0.1); // E
     }
 
     playFailure() {
         this.init();
-        // Descending Tritone / Dissonant
-        this.playTone(440, 'sawtooth', 0.4, 0);
-        this.playTone(311.13, 'sawtooth', 0.6, 0.2); // Eb4
+        // Error Buzz
+        this.playTone(150, 'sawtooth', 0.4, 0, 0.1);
+        this.playTone(140, 'sawtooth', 0.4, 0.1, 0.1);
     }
 
     playStart() {
         this.init();
-        // Royal Trumpet-ish
-        this.playTone(392.00, 'sawtooth', 0.2, 0); // G4
-        this.playTone(392.00, 'sawtooth', 0.2, 0.2);
-        this.playTone(392.00, 'sawtooth', 0.2, 0.4);
-        this.playTone(523.25, 'sawtooth', 0.6, 0.6); // C5
+        // Power Up
+        if (this.isMuted || !this.audioContext) return;
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(110, this.audioContext.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, this.audioContext.currentTime + 1);
+
+        gain.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 1);
+
+        osc.connect(gain);
+        gain.connect(this.audioContext.destination);
+
+        osc.start();
+        osc.stop(this.audioContext.currentTime + 1);
+    }
+
+    playSwap() {
+        this.init();
+        // Rapid frequency shift for swap
+        this.playTone(800, 'sawtooth', 0.1, 0, 0.1);
+        this.playTone(400, 'sawtooth', 0.1, 0.1, 0.1);
     }
 }
 

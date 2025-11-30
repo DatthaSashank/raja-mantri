@@ -1,21 +1,28 @@
 :root {
-    --royal-red: #8B0000;
-    --royal-gold: #FFD700;
-    --royal-blue: #4169E1;
-    --cream: #FFFDD0;
-    --text-dark: #2c3e50;
-    --font-heading: 'Playfair Display', serif;
-    --font-body: 'Inter', sans-serif;
+    --neon-cyan: #00f3ff;
+    --neon-magenta: #ff00ff;
+    --neon-green: #00ff9d;
+    --deep-space: #050510;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-glow: 0 0 10px rgba(0, 243, 255, 0.5);
+    --font-heading: 'Orbitron', 'Rajdhani', sans-serif;
+    /* Fallback to sans-serif if not loaded, but we'll assume standard system fonts or import later if needed. For now, sans-serif is fine */
+    --font-body: 'Rajdhani', 'Segoe UI', sans-serif;
 }
 
 body {
     margin: 0;
     font-family: var(--font-body);
-    background-color: var(--cream);
-    color: var(--text-dark);
+    background-color: var(--deep-space);
+    color: #fff;
     display: flex;
     justify-content: center;
     min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(0, 243, 255, 0.1) 0%, transparent 20%),
+        radial-gradient(circle at 80% 70%, rgba(255, 0, 255, 0.1) 0%, transparent 20%);
 }
 
 #root {
@@ -30,7 +37,10 @@ h1,
 h2,
 h3 {
     font-family: var(--font-heading);
-    color: var(--royal-red);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--neon-cyan);
+    text-shadow: var(--text-glow);
 }
 
 .app-container {
@@ -41,21 +51,23 @@ h3 {
 }
 
 button {
-    background-color: var(--royal-red);
-    color: var(--royal-gold);
-    border: 2px solid var(--royal-gold);
+    background: var(--glass-bg);
+    color: var(--neon-cyan);
+    border: 1px solid var(--neon-cyan);
     padding: 0.8rem 1.6rem;
     font-size: 1rem;
     font-family: var(--font-heading);
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 4px;
     transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
 }
 
 button:hover {
-    background-color: var(--royal-gold);
-    color: var(--royal-red);
-    border-color: var(--royal-red);
+    background: var(--neon-cyan);
+    color: var(--deep-space);
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
 }
 
 /* Mute Button */
@@ -70,21 +82,21 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: transparent;
-    border: none;
-    color: var(--royal-red);
-    box-shadow: none;
+    border: 1px solid var(--neon-magenta);
+    color: var(--neon-magenta);
+    box-shadow: 0 0 5px rgba(255, 0, 255, 0.3);
 }
 
 .mute-btn:hover {
-    background: rgba(139, 0, 0, 0.1);
-    border: none;
+    background: var(--neon-magenta);
+    color: var(--deep-space);
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
 }
 
-/* Card Component */
+/* Card Component - Holographic Cube Style */
 .card-container {
-    width: 200px;
-    height: 300px;
+    width: 180px;
+    height: 260px;
     perspective: 1000px;
     cursor: pointer;
     margin: 1rem;
@@ -95,10 +107,8 @@ button:hover {
     width: 100%;
     height: 100%;
     text-align: center;
-    transition: transform 0.6s;
+    transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
     transform-style: preserve-3d;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 15px;
 }
 
 .card-front,
@@ -108,21 +118,23 @@ button:hover {
     height: 100%;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    border-radius: 15px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid var(--royal-gold);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
 .card-front {
-    background-color: var(--royal-red);
-    color: var(--royal-gold);
+    background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(255, 0, 255, 0.1));
+    border: 1px solid var(--neon-cyan);
 }
 
 .card-back {
-    background-color: var(--cream);
-    color: var(--royal-red);
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--neon-magenta);
     transform: rotateY(180deg);
 }
 
@@ -133,25 +145,28 @@ button:hover {
     gap: 1rem;
 }
 
-.royal-emblem {
+.holo-icon {
     font-size: 3rem;
+    filter: drop-shadow(0 0 5px var(--neon-cyan));
 }
 
 .role-icon {
     font-size: 4rem;
     display: block;
     margin-bottom: 1rem;
+    filter: drop-shadow(0 0 8px var(--neon-magenta));
 }
 
 /* Player Setup */
 .setup-container {
-    background: white;
+    background: var(--glass-bg);
     padding: 2rem;
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--glass-border);
     width: 100%;
-    max-width: 400px;
-    border: 1px solid var(--royal-gold);
+    max-width: 500px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .player-form {
@@ -169,26 +184,28 @@ button:hover {
 .input-group label {
     font-size: 0.9rem;
     margin-bottom: 0.3rem;
-    color: var(--royal-blue);
-    font-weight: bold;
+    color: var(--neon-green);
+    font-family: var(--font-heading);
 }
 
 .input-group input {
     padding: 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    color: #fff;
     font-family: var(--font-body);
     font-size: 1rem;
 }
 
 .input-group input:focus {
     outline: none;
-    border-color: var(--royal-gold);
-    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
 }
 
 .error-message {
-    color: var(--royal-red);
+    color: #ff4444;
     font-size: 0.9rem;
 }
 
@@ -197,51 +214,75 @@ button:hover {
     width: 100%;
 }
 
-/* Guessing Phase */
-.guessing-container {
-    text-align: center;
+/* Game Area */
+.game-area {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.instruction {
-    font-size: 1.2rem;
+.status-bar {
     margin-bottom: 2rem;
+    font-size: 1.5rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 5px var(--neon-green);
 }
 
-.suspects-grid {
+.players-grid {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    gap: 1.5rem;
     flex-wrap: wrap;
+    margin-bottom: 3rem;
 }
 
-.suspect-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    border: 2px solid transparent;
-    width: 150px;
-    transition: border-color 0.3s;
+.player-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
 }
 
-.suspect-card:hover {
-    border-color: var(--royal-red);
+.player-name {
+    font-family: var(--font-heading);
+    color: var(--neon-cyan);
+    font-size: 1.1rem;
 }
 
-.avatar {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+.guessing-ui {
+    background: var(--glass-bg);
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--neon-magenta);
+    backdrop-filter: blur(5px);
+    animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+    0% {
+        box-shadow: 0 0 5px rgba(255, 0, 255, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+    }
+
+    100% {
+        box-shadow: 0 0 5px rgba(255, 0, 255, 0.2);
+    }
 }
 
 /* ScoreBoard */
 .scoreboard-container {
-    background: white;
+    background: var(--glass-bg);
     padding: 2rem;
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--glass-border);
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
+    backdrop-filter: blur(10px);
 }
 
 .results-table {
@@ -256,55 +297,59 @@ button:hover {
     display: grid;
     grid-template-columns: 1.5fr 1fr 1fr 1fr;
     padding: 0.8rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--glass-border);
     align-items: center;
 }
 
 .table-header {
     font-weight: bold;
-    color: var(--royal-red);
-    border-bottom: 2px solid var(--royal-gold);
+    color: var(--neon-cyan);
+    border-bottom: 1px solid var(--neon-cyan);
 }
 
 .role-reveal {
     font-weight: bold;
-    color: var(--royal-blue);
+    color: var(--neon-magenta);
 }
 
 .total-score {
     font-weight: bold;
-    color: var(--royal-gold);
-    background: var(--royal-red);
+    color: var(--deep-space);
+    background: var(--neon-green);
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
-    color: white;
-}
-
-.next-round-btn {
-    width: 100%;
-    margin-bottom: 2rem;
+    box-shadow: 0 0 10px var(--neon-green);
 }
 
 .history-section {
     text-align: left;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--glass-border);
     padding-top: 1rem;
-}
-
-.history-list {
-    max-height: 200px;
-    overflow-y: auto;
+    margin-top: 1rem;
 }
 
 .history-item {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     padding: 0.5rem;
-    border-bottom: 1px solid #f9f9f9;
-    font-size: 0.9rem;
 }
 
-.mini-score {
-    color: #666;
+.indicator {
+    color: var(--neon-cyan);
+    font-weight: bold;
+    margin-top: 0.5rem;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.5;
+    }
 }

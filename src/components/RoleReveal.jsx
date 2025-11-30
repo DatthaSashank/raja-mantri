@@ -8,10 +8,11 @@ const RoleReveal = ({ playerName, role, onNext }) => {
 
     const getRoleIcon = (role) => {
         switch (role) {
-            case 'Raja': return '👑';
-            case 'Mantri': return '👳';
-            case 'Chor': return '🦹';
-            case 'Sipahi': return '👮';
+            case 'Raju': return '👑';
+            case 'Rani': return '👸';
+            case 'Manthri': return '📜';
+            case 'Bhatudu': return '🛡️';
+            case 'Donga': return '🦹';
             default: return '❓';
         }
     };
@@ -29,10 +30,10 @@ const RoleReveal = ({ playerName, role, onNext }) => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
         >
-            <h2>{playerName}'s Turn</h2>
-            <p>Pass the device to {playerName} and tap the card to reveal your role.</p>
+            <h2>{playerName}'s Identity</h2>
+            <p>Pass device to {playerName}. Tap to decrypt role.</p>
 
-            <div className="card-wrapper">
+            <div className="card-wrapper" style={{ display: 'flex', justifyContent: 'center' }}>
                 <Card
                     title={role}
                     isRevealed={isRevealed}
@@ -50,8 +51,9 @@ const RoleReveal = ({ playerName, role, onNext }) => {
                         soundManager.playClick();
                         onNext();
                     }}
+                    style={{ marginTop: '2rem' }}
                 >
-                    Next Player
+                    CONFIRM & NEXT
                 </motion.button>
             )}
         </motion.div>
