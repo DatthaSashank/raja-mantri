@@ -7,8 +7,9 @@ import ScoreBoard from './ScoreBoard';
 import soundManager from '../utils/SoundManager';
 import Card from './Card';
 
-// Connect to local server (or deployed URL later)
-const socket = io('http://localhost:3001');
+// Connect to server (Environment Variable or Localhost fallback)
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
+const socket = io(SERVER_URL);
 
 const CHAIN_ORDER = ['Raju', 'Rani', 'Manthri', 'Bhatudu', 'Donga'];
 
