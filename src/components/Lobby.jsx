@@ -60,6 +60,7 @@ const Lobby = () => {
         if (code) {
             setRoomCode(code);
             setMode('JOIN');
+            setPlayerName(''); // Force user to enter name
         }
 
         // Particle generation
