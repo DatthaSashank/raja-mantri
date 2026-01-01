@@ -2,6 +2,7 @@
     "name": "raja-mantri-server",
     "version": "1.0.0",
     "description": "Socket.io server for Raju Mantri",
+    "type": "module",
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
