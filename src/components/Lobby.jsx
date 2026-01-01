@@ -147,7 +147,7 @@ const Lobby = () => {
                             />
                         </div>
                         <div className="lobby-actions" style={{ flexDirection: 'column', gap: '10px' }}>
-                            <button className="enter-btn" onClick={handleJoin} disabled={!isConnected}>ESTABLISH LINK</button>
+                            <button className="enter-btn" onClick={handleJoin} disabled={!isConnected}>ENTER THE ROOM</button>
                             <button className="enter-btn secondary-btn" onClick={() => setMode('MENU')}>ABORT</button>
                         </div>
                     </div>
