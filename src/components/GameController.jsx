@@ -145,6 +145,18 @@ const GameController = () => {
 
                 <div className="lobby-header">
                     <h2>Game Room: {room.code}</h2>
+                    <button
+                        className="enter-btn secondary-btn"
+                        onClick={() => {
+                            const url = `${window.location.protocol}//${window.location.host}?room=${room.code}`;
+                            navigator.clipboard.writeText(url);
+                            setNotification("Invite Link Copied!");
+                            setTimeout(() => setNotification(''), 2000);
+                        }}
+                        style={{ marginTop: '10px', fontSize: '0.9rem', padding: '10px' }}
+                    >
+                        🔗 SHARE INVITE LINK
+                    </button>
                 </div>
                 <div className="player-list">
                     {room.players.map((p, i) => (

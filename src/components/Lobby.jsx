@@ -54,6 +54,14 @@ const Lobby = () => {
     };
 
     useEffect(() => {
+        // Check for Room Code in URL
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('room');
+        if (code) {
+            setRoomCode(code);
+            setMode('JOIN');
+        }
+
         // Particle generation
         const createParticle = () => {
             const p = document.createElement('div');
@@ -139,7 +147,7 @@ const Lobby = () => {
                         <div className="input-box">
                             <input
                                 type="text"
-                                placeholder="SECURITY CODES (ROOM ID)"
+                                placeholder="ROOM ID"
                                 value={roomCode}
                                 onChange={e => setRoomCode(e.target.value)}
                                 maxLength={4}
