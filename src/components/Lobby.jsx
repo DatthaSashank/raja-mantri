@@ -61,6 +61,7 @@ const Lobby = () => {
             setRoomCode(code);
             setMode('JOIN');
             setPlayerName(''); // Force user to enter name
+            localStorage.removeItem('rm_playerName'); // Clear stored name
         }
 
         // Particle generation
@@ -111,7 +112,7 @@ const Lobby = () => {
                                 placeholder="IDENTITY TAG (NAME)"
                                 value={playerName}
                                 onChange={e => setPlayerName(e.target.value)}
-                                autoComplete="off"
+                                autoComplete="new-password"
                             />
                         </div>
 
