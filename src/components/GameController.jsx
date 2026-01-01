@@ -24,14 +24,9 @@ const GameController = () => {
         if (!socket) return;
 
         const handleConnect = () => {
-            // Attempt Auto-Reconnect
-            const lastRoom = getLastRoomCode();
-            if (lastRoom) {
-                setIsReconnecting(true);
-                const savedName = localStorage.getItem('rm_playerName') || 'Player';
-                const sessionId = getSessionId();
-                socket.emit(SOCKET_EVENTS.JOIN_ROOM, { roomCode: lastRoom, playerName: savedName, sessionId });
-            }
+            // Auto-reconnect removed to prevent unwanted room creation/joining on startup
+            // Users must manually Join or Create, or use an Invite Link
+            setIsReconnecting(false);
         };
 
         const handleRoomCreated = ({ roomCode, state }) => {
