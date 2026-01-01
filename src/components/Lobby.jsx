@@ -61,22 +61,10 @@ const Lobby = () => {
         >
             {/* Animated Character Showcase */}
             <div className="character-showcase">
-                <motion.img
-                    src={kingImg} className="floating-char char-king"
-                    animate={{ y: [0, -20, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                />
-                <motion.img
-                    src={queenImg} className="floating-char char-queen"
-                    animate={{ y: [0, -15, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                />
-                <motion.img
-                    src={policeImg} className="floating-char char-police"
-                    animate={{ y: [0, -18, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                />
-                <motion.img
-                    src={thiefImg} className="floating-char char-thief"
-                    animate={{ y: [0, -12, 0] }} transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-                />
+                <img src={kingImg} className="floating-char char-king" alt="King" />
+                <img src={queenImg} className="floating-char char-queen" alt="Queen" />
+                <img src={policeImg} className="floating-char char-police" alt="Police" />
+                <img src={thiefImg} className="floating-char char-thief" alt="Thief" />
             </div>
 
             <motion.div
