@@ -141,7 +141,7 @@ const GameController = () => {
     if (room.gameState === GAME_STATE.LOBBY) {
         return (
             <div className="glass-panel">
-                <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">❌</button>
+                <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">EXIT ROOM</button>
 
                 <div className="lobby-header">
                     <h2>Game Room: {room.code}</h2>
@@ -192,7 +192,7 @@ const GameController = () => {
 
     return (
         <div className="glass-panel game-mode">
-            <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">❌</button>
+            <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">EXIT ROOM</button>
 
             <div className="status-bar">
                 <div className="status-info">
