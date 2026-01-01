@@ -53,40 +53,60 @@ const Lobby = () => {
         setMode('WAITING');
     };
 
+    useEffect(() => {
+        // Particle generation
+        const createParticle = () => {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            let size = Math.random() * 4 + 'px';
+            p.style.width = size;
+            p.style.height = size;
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.animationDuration = (Math.random() * 10 + 5) + 's';
+            p.style.animationDelay = Math.random() * 5 + 's';
+            document.body.appendChild(p);
+
+            // Cleanup particle after animation
+            setTimeout(() => {
+                p.remove();
+            }, 15000);
+        };
+
+        const interval = setInterval(createParticle, 500);
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <motion.div
             className="center-content relative-container"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
         >
-            {/* Animated Character Showcase */}
-            <div className="character-showcase">
-                <img src={kingImg} className="floating-char char-king" alt="King" />
-                <img src={queenImg} className="floating-char char-queen" alt="Queen" />
-                <img src={policeImg} className="floating-char char-police" alt="Police" />
-                <img src={thiefImg} className="floating-char char-thief" alt="Thief" />
-            </div>
+            <div className="bg-glow"></div>
 
             <motion.div
-                className="glass-panel"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", duration: 0.8 }}
+                className="portal-container"
+                initial={{ rotateX: 90, opacity: 0 }}
+                animate={{ rotateX: 10, opacity: 1 }}
+                transition={{ type: "spring", bounce: 0.4, duration: 1.5 }}
             >
-                <h2>Raja Mantri</h2>
+                <h1 className="game-title">RAJA MANTRI</h1>
+                <p className="tagline">The Deception Protocol</p>
 
                 {mode === 'MENU' && (
                     <div className="lobby-menu">
-                        <input
-                            type="text"
-                            placeholder="ENTER NAME"
-                            value={playerName}
-                            onChange={e => setPlayerName(e.target.value)}
-                            className="lobby-input"
-                        />
+                        <div className="input-box">
+                            <input
+                                type="text"
+                                placeholder="IDENTITY TAG (NAME)"
+                                value={playerName}
+                                onChange={e => setPlayerName(e.target.value)}
+                                autoComplete="off"
+                            />
+                        </div>
 
-                        <div className="rounds-selector">
-                            <label>GAME DURATION</label>
+                        <div className="input-box">
                             <select
                                 value={maxRounds}
                                 onChange={(e) => setMaxRounds(Number(e.target.value))}
@@ -98,47 +118,59 @@ const Lobby = () => {
                             </select>
                         </div>
 
-                        <div className="lobby-actions">
-                            <button onClick={handleCreate} disabled={!isConnected}>CREATE</button>
-                            <button onClick={() => setMode('JOIN')} disabled={!isConnected} className="secondary-btn">JOIN</button>
+                        <div className="lobby-actions" style={{ flexDirection: 'column', gap: '10px' }}>
+                            <button className="enter-btn" onClick={handleCreate} disabled={!isConnected}>INITIATE HOSTING</button>
+                            <button className="enter-btn secondary-btn" onClick={() => setMode('JOIN')} disabled={!isConnected}>JOIN FREQUENCY</button>
                         </div>
                     </div>
                 )}
 
                 {mode === 'JOIN' && (
                     <div className="lobby-menu">
-                        <input
-                            type="text"
-                            placeholder="ENTER NAME"
-                            value={playerName}
-                            onChange={e => setPlayerName(e.target.value)}
-                            className="lobby-input"
-                        />
-                        <input
-                            type="text"
-                            placeholder="GAME CODE"
-                            value={roomCode}
-                            onChange={e => setRoomCode(e.target.value)}
-                            className="lobby-input"
-                            maxLength={4}
-                        />
-                        <div className="lobby-actions">
-                            <button onClick={handleJoin} disabled={!isConnected}>CONNECT</button>
-                            <button onClick={() => setMode('MENU')} className="secondary-btn">BACK</button>
+                        <div className="input-box">
+                            <input
+                                type="text"
+                                placeholder="IDENTITY TAG (NAME)"
+                                value={playerName}
+                                onChange={e => setPlayerName(e.target.value)}
+                                autoComplete="off"
+                            />
+                        </div>
+                        <div className="input-box">
+                            <input
+                                type="text"
+                                placeholder="SECURITY CODES (ROOM ID)"
+                                value={roomCode}
+                                onChange={e => setRoomCode(e.target.value)}
+                                maxLength={4}
+                                autoComplete="off"
+                            />
+                        </div>
+                        <div className="lobby-actions" style={{ flexDirection: 'column', gap: '10px' }}>
+                            <button className="enter-btn" onClick={handleJoin} disabled={!isConnected}>ESTABLISH LINK</button>
+                            <button className="enter-btn secondary-btn" onClick={() => setMode('MENU')}>ABORT</button>
                         </div>
                     </div>
                 )}
 
                 {mode === 'WAITING' && (
                     <div className="waiting-room">
-                        <p>ESTABLISHING UPLINK...</p>
-                        {/* Parent component will switch view when room is joined */}
+                        <p style={{ color: '#00f2ff', letterSpacing: '2px', margin: '20px 0' }}>ESTABLISHING UPLINK...</p>
+                        <div className="dot" style={{ margin: '0 auto' }}></div>
                     </div>
                 )}
 
-                {error && <p className="error-message" style={{ color: 'var(--neon-pink)', marginTop: '1rem' }}>{error}</p>}
+                {error && <p className="error-message" style={{ color: '#ff4444', marginTop: '1rem', fontFamily: 'Orbitron' }}>⚠ {error}</p>}
+
+                <div className="role-circles">
+                    <div className="dot" title="Raja"></div>
+                    <div className="dot" title="Mantri" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="dot" title="Police" style={{ animationDelay: '0.4s' }}></div>
+                    <div className="dot" title="Chor" style={{ animationDelay: '0.6s' }}></div>
+                </div>
+
                 <div style={{ marginTop: '2rem', fontSize: '0.7rem', color: '#555', letterSpacing: '1px' }}>
-                    SYSTEM STATUS: <span style={{ color: isConnected ? 'var(--neon-cyan)' : 'var(--neon-pink)' }}>{isConnected ? 'ONLINE' : 'OFFLINE'}</span>
+                    SYSTEM STATUS: <span style={{ color: isConnected ? '#00f2ff' : '#ff4444' }}>{isConnected ? 'ONLINE' : 'OFFLINE'}</span>
                 </div>
             </motion.div>
         </motion.div>
