@@ -8,6 +8,11 @@ import Card from './Card';
 import { getSessionId, saveRoomCode, getLastRoomCode, clearRoomCode } from '../utils/session';
 import { useSocket } from '../context/SocketContext';
 import { SOCKET_EVENTS, GAME_STATE, CHAIN_ORDER, ROLES } from '../utils/constants';
+import kingImg from '../assets/king.png';
+import queenImg from '../assets/queen.png';
+import ministerImg from '../assets/minister.png';
+import policeImg from '../assets/police.png';
+import thiefImg from '../assets/thief.png';
 
 const GameController = () => {
     const { socket, socketId } = useSocket();
@@ -135,7 +140,7 @@ const GameController = () => {
 
     if (room.gameState === GAME_STATE.LOBBY) {
         return (
-            <div className="setup-container">
+            <div className="glass-panel">
                 <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">❌</button>
 
                 <div className="lobby-header">
@@ -176,17 +181,17 @@ const GameController = () => {
 
     const getRoleIcon = (role) => {
         switch (role) {
-            case ROLES.RAJU: return '👑';
-            case ROLES.RANI: return '👸';
-            case ROLES.MANTHRI: return '📜';
-            case ROLES.BHATUDU: return '🛡️';
-            case ROLES.DONGA: return '🦹';
+            case ROLES.RAJU: return kingImg;
+            case ROLES.RANI: return queenImg;
+            case ROLES.MANTHRI: return ministerImg;
+            case ROLES.BHATUDU: return policeImg;
+            case ROLES.DONGA: return thiefImg;
             default: return '❓';
         }
     };
 
     return (
-        <div className="game-controller">
+        <div className="glass-panel game-mode">
             <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">❌</button>
 
             <div className="status-bar">

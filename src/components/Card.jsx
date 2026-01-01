@@ -19,15 +19,19 @@ const Card = ({ title, content, isRevealed, onClick, icon }) => {
             >
                 <div className="card-front">
                     <div className="card-pattern">
-                        <span className="holo-icon">💠</span>
-                        <h3>LOCKED</h3>
+                        <span className="holo-icon" style={{ fontSize: '3rem' }}>🔍</span>
                     </div>
                 </div>
                 <div className="card-back">
-                    <div className="card-content">
-                        <span className="role-icon">{icon}</span>
-                        <h3>{title}</h3>
-                        {content && <p>{content}</p>}
+                    <div className="card-content" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        {typeof icon === 'string' && (icon.includes('/') || icon.includes('.png')) ? (
+                            <img src={icon} alt={title} className="card-image" />
+                        ) : (
+                            <span className="role-icon">{icon}</span>
+                        )}
+                        <div className="card-role-title">
+                            {title}
+                        </div>
                     </div>
                 </div>
             </motion.div>

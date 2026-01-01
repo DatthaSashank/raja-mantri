@@ -20,7 +20,6 @@ function App() {
       >
         {isMuted ? <VolumeX /> : <Volume2 />}
       </button>
-      <h1>Raju Mantri: Zero-G Heist</h1>
       <GameController />
     </div>
   );

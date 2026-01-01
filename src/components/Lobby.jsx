@@ -50,76 +50,78 @@ const Lobby = () => {
 
     return (
         <motion.div
-            className="setup-container"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            className="center-content"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
         >
-            <h2>Raja Mantri</h2>
+            <div className="glass-panel">
+                <h2>Raja Mantri</h2>
 
-            {mode === 'MENU' && (
-                <div className="lobby-menu">
-                    <input
-                        type="text"
-                        placeholder="Enter Name"
-                        value={playerName}
-                        onChange={e => setPlayerName(e.target.value)}
-                        className="lobby-input"
-                    />
+                {mode === 'MENU' && (
+                    <div className="lobby-menu">
+                        <input
+                            type="text"
+                            placeholder="ENTER NAME"
+                            value={playerName}
+                            onChange={e => setPlayerName(e.target.value)}
+                            className="lobby-input"
+                        />
 
-                    <div className="rounds-selector">
-                        <label>Game Duration (Rounds):</label>
-                        <select
-                            value={maxRounds}
-                            onChange={(e) => setMaxRounds(Number(e.target.value))}
-                            className="lobby-select"
-                        >
-                            <option value={3}>3 Rounds (Short)</option>
-                            <option value={5}>5 Rounds (Standard)</option>
-                            <option value={10}>10 Rounds (Long)</option>
-                        </select>
+                        <div className="rounds-selector">
+                            <label>GAME DURATION</label>
+                            <select
+                                value={maxRounds}
+                                onChange={(e) => setMaxRounds(Number(e.target.value))}
+                                className="modern-select"
+                            >
+                                <option value={3}>3 ROUNDS (SPEED)</option>
+                                <option value={5}>5 ROUNDS (STANDARD)</option>
+                                <option value={10}>10 ROUNDS (LONG)</option>
+                            </select>
+                        </div>
+
+                        <div className="lobby-actions">
+                            <button onClick={handleCreate} disabled={!isConnected}>CREATE</button>
+                            <button onClick={() => setMode('JOIN')} disabled={!isConnected} className="secondary-btn">JOIN</button>
+                        </div>
                     </div>
+                )}
 
-                    <div className="lobby-actions">
-                        <button onClick={handleCreate} disabled={!isConnected}>Create Game</button>
-                        <button onClick={() => setMode('JOIN')} disabled={!isConnected}>Join Game</button>
+                {mode === 'JOIN' && (
+                    <div className="lobby-menu">
+                        <input
+                            type="text"
+                            placeholder="ENTER NAME"
+                            value={playerName}
+                            onChange={e => setPlayerName(e.target.value)}
+                            className="lobby-input"
+                        />
+                        <input
+                            type="text"
+                            placeholder="GAME CODE"
+                            value={roomCode}
+                            onChange={e => setRoomCode(e.target.value)}
+                            className="lobby-input"
+                            maxLength={4}
+                        />
+                        <div className="lobby-actions">
+                            <button onClick={handleJoin} disabled={!isConnected}>CONNECT</button>
+                            <button onClick={() => setMode('MENU')} className="secondary-btn">BACK</button>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {mode === 'JOIN' && (
-                <div className="lobby-menu">
-                    <input
-                        type="text"
-                        placeholder="Enter Name"
-                        value={playerName}
-                        onChange={e => setPlayerName(e.target.value)}
-                        className="lobby-input"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Game Code (4 Chars)"
-                        value={roomCode}
-                        onChange={e => setRoomCode(e.target.value)}
-                        className="lobby-input"
-                        maxLength={4}
-                    />
-                    <div className="lobby-actions">
-                        <button onClick={handleJoin} disabled={!isConnected}>Connect</button>
-                        <button onClick={() => setMode('MENU')} className="secondary-btn">Back</button>
+                {mode === 'WAITING' && (
+                    <div className="waiting-room">
+                        <p>ESTABLISHING UPLINK...</p>
+                        {/* Parent component will switch view when room is joined */}
                     </div>
-                </div>
-            )}
+                )}
 
-            {mode === 'WAITING' && (
-                <div className="waiting-room">
-                    <p>Connecting to Satellite...</p>
-                    {/* Parent component will switch view when room is joined */}
+                {error && <p className="error-message" style={{ color: 'var(--neon-pink)', marginTop: '1rem' }}>{error}</p>}
+                <div style={{ marginTop: '2rem', fontSize: '0.7rem', color: '#555', letterSpacing: '1px' }}>
+                    SYSTEM STATUS: <span style={{ color: isConnected ? 'var(--neon-cyan)' : 'var(--neon-pink)' }}>{isConnected ? 'ONLINE' : 'OFFLINE'}</span>
                 </div>
-            )}
-
-            {error && <p className="error-message">{error}</p>}
-            <div style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#555' }}>
-                Status: {isConnected ? 'Online' : 'Offline'}
             </div>
         </motion.div>
     );

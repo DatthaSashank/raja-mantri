@@ -9,8 +9,8 @@ const ScoreBoard = ({ players, history, onNextRound, isGameOver }) => {
 
     return (
         <motion.div
-            className="scoreboard-container"
-            initial={{ opacity: 0, y: 20 }}
+            className="glass-panel game-mode"
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, y: 0 }}
         >
             <h2>{isGameOver ? "Game Over - Final Report" : "Round Results"}</h2>
