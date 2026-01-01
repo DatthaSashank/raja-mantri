@@ -27,7 +27,7 @@ const generateRoomCode = () => Math.random().toString(36).substring(2, 6).toUppe
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    socket.on('create_room', ({ playerName, sessionId }) => {
+    socket.on('create_room', ({ playerName, sessionId, maxRounds }) => {
         const roomCode = generateRoomCode();
         rooms[roomCode] = {
             code: roomCode,
@@ -43,7 +43,8 @@ io.on('connection', (socket) => {
             chainIndex: 0,
             revealedRoles: {},
             message: 'Waiting for players...',
-            round: 1
+            round: 1,
+            maxRounds: maxRounds || 5 // Default to 5 rounds
         };
         socket.join(roomCode);
         socket.emit('room_created', { roomCode, state: rooms[roomCode] });
@@ -149,8 +150,13 @@ io.on('connection', (socket) => {
     socket.on('next_round', ({ roomCode }) => {
         const room = rooms[roomCode];
         if (room) {
-            room.round++;
-            startRound(room);
+            if (room.round < room.maxRounds) {
+                room.round++;
+                startRound(room);
+            } else {
+                room.gameState = 'GAME_OVER';
+                room.message = 'Game Over! Final Results.';
+            }
             io.to(roomCode).emit('state_update', room);
         }
     });

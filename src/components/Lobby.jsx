@@ -9,6 +9,7 @@ const Lobby = () => {
     const { socket, isConnected } = useSocket();
     const [playerName, setPlayerName] = useState(localStorage.getItem('rm_playerName') || '');
     const [roomCode, setRoomCode] = useState('');
+    const [maxRounds, setMaxRounds] = useState(5);
     const [mode, setMode] = useState('MENU'); // MENU, JOIN, WAITING
     const [error, setError] = useState('');
 
@@ -32,7 +33,7 @@ const Lobby = () => {
         soundManager.playClick();
         localStorage.setItem('rm_playerName', playerName);
         const sessionId = getSessionId();
-        socket.emit(SOCKET_EVENTS.CREATE_ROOM, { playerName, sessionId });
+        socket.emit(SOCKET_EVENTS.CREATE_ROOM, { playerName, sessionId, maxRounds });
         setMode('WAITING');
     };
 
@@ -64,6 +65,20 @@ const Lobby = () => {
                         onChange={e => setPlayerName(e.target.value)}
                         className="lobby-input"
                     />
+
+                    <div className="rounds-selector">
+                        <label>Mission Duration (Rounds):</label>
+                        <select
+                            value={maxRounds}
+                            onChange={(e) => setMaxRounds(Number(e.target.value))}
+                            className="lobby-select"
+                        >
+                            <option value={3}>3 Rounds (Short)</option>
+                            <option value={5}>5 Rounds (Standard)</option>
+                            <option value={10}>10 Rounds (Long)</option>
+                        </select>
+                    </div>
+
                     <div className="lobby-actions">
                         <button onClick={handleCreate} disabled={!isConnected}>Create Mission</button>
                         <button onClick={() => setMode('JOIN')} disabled={!isConnected}>Join Mission</button>

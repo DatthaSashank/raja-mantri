@@ -102,7 +102,13 @@ const GameController = () => {
 
     const handleNextRound = () => {
         if (room && socket) {
-            socket.emit(SOCKET_EVENTS.NEXT_ROUND, { roomCode: room.code });
+            if (room.gameState === GAME_STATE.GAME_OVER) {
+                // Reset to Lobby (reload page or clear state)
+                // Reloading is safest to clear all state
+                window.location.reload();
+            } else {
+                socket.emit(SOCKET_EVENTS.NEXT_ROUND, { roomCode: room.code });
+            }
         }
     };
 
@@ -130,6 +136,7 @@ const GameController = () => {
                     ))}
                 </div>
                 <p>Waiting for crew ({room.players.length}/5)...</p>
+                <p>Mission Length: {room.maxRounds} Rounds</p>
                 {room.players.length === 5 && room.players[0].id === socketId && (
                     <button className="start-btn" onClick={handleStartGame}>Launch Mission</button>
                 )}
@@ -143,8 +150,15 @@ const GameController = () => {
 
     if (!myPlayer) return <div>Error: Player data sync failure. Refreshing...</div>;
 
-    if (room.gameState === GAME_STATE.RESULT) {
-        return <ScoreBoard players={room.players} history={[]} onNextRound={handleNextRound} />;
+    if (room.gameState === GAME_STATE.RESULT || room.gameState === GAME_STATE.GAME_OVER) {
+        return (
+            <ScoreBoard
+                players={room.players}
+                history={[]}
+                onNextRound={handleNextRound}
+                isGameOver={room.gameState === GAME_STATE.GAME_OVER}
+            />
+        );
     }
 
     const getRoleIcon = (role) => {

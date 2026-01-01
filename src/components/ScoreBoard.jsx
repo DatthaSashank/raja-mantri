@@ -1,14 +1,19 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const ScoreBoard = ({ players, history, onNextRound }) => {
+const ScoreBoard = ({ players, history, onNextRound, isGameOver }) => {
+    // Sort players by total score for display if game over
+    const sortedPlayers = isGameOver
+        ? [...players].sort((a, b) => b.totalScore - a.totalScore)
+        : players;
+
     return (
         <motion.div
             className="scoreboard-container"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
         >
-            <h2>Round Results</h2>
+            <h2>{isGameOver ? "Mission Complete - Final Report" : "Round Results"}</h2>
 
             <div className="results-table">
                 <div className="table-header">
@@ -17,9 +22,12 @@ const ScoreBoard = ({ players, history, onNextRound }) => {
                     <span>Round Score</span>
                     <span>Total Score</span>
                 </div>
-                {players.map((player, index) => (
-                    <div key={index} className="table-row">
-                        <span>{player.name}</span>
+                {sortedPlayers.map((player, index) => (
+                    <div key={index} className={`table-row ${isGameOver && index === 0 ? 'winner-row' : ''}`}>
+                        <span>
+                            {isGameOver && index === 0 && '🏆 '}
+                            {player.name}
+                        </span>
                         <span className="role-reveal">{player.role}</span>
                         <span>{player.score}</span>
                         <span className="total-score">{player.totalScore}</span>
@@ -28,7 +36,7 @@ const ScoreBoard = ({ players, history, onNextRound }) => {
             </div>
 
             <button className="next-round-btn" onClick={onNextRound}>
-                Next Round
+                {isGameOver ? "Return to Lobby" : "Next Round"}
             </button>
 
             <div className="history-section">
