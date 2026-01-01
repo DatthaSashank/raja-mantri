@@ -119,8 +119,8 @@ const Lobby = () => {
                         </div>
 
                         <div className="lobby-actions" style={{ flexDirection: 'column', gap: '10px' }}>
-                            <button className="enter-btn" onClick={handleCreate} disabled={!isConnected}>INITIATE HOSTING</button>
-                            <button className="enter-btn secondary-btn" onClick={() => setMode('JOIN')} disabled={!isConnected}>JOIN FREQUENCY</button>
+                            <button className="enter-btn" onClick={handleCreate} disabled={!isConnected}>CREATE ROOM</button>
+                            <button className="enter-btn secondary-btn" onClick={() => setMode('JOIN')} disabled={!isConnected}>JOIN ROOM</button>
                         </div>
                     </div>
                 )}
@@ -169,7 +169,7 @@ const Lobby = () => {
                     <div className="dot" title="Chor" style={{ animationDelay: '0.6s' }}></div>
                 </div>
 
-                <div style={{ marginTop: '2rem', fontSize: '0.7rem', color: '#555', letterSpacing: '1px' }}>
+                <div style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#ff69b4', letterSpacing: '1px', fontWeight: 'bold' }}>
                     SYSTEM STATUS: <span style={{ color: isConnected ? '#00f2ff' : '#ff4444' }}>{isConnected ? 'ONLINE' : 'OFFLINE'}</span>
                 </div>
             </motion.div>
