@@ -28,5 +28,6 @@ export const SOCKET_EVENTS = {
     MAKE_GUESS: 'make_guess',
     CORRECT_GUESS: 'correct_guess',
     WRONG_GUESS: 'wrong_guess',
-    NEXT_ROUND: 'next_round'
+    NEXT_ROUND: 'next_round',
+    LEAVE_ROOM: 'leave_room'
 };

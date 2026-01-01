@@ -1,3 +1,4 @@
+/* eslint-env node */
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -161,9 +162,40 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('leave_room', ({ roomCode }) => {
+        const room = rooms[roomCode];
+        if (room) {
+            // Remove player
+            room.players = room.players.filter(p => p.id !== socket.id);
+            socket.leave(roomCode);
+
+            if (room.players.length === 0) {
+                delete rooms[roomCode];
+                console.log(`Room ${roomCode} deleted (empty)`);
+            } else {
+                // If game was in progress, reset to LOBBY because we need 5 players
+                if (room.gameState !== 'LOBBY') {
+                    room.gameState = 'LOBBY';
+                    room.round = 1;
+                    room.chainIndex = 0;
+                    room.revealedRoles = {};
+                    room.players.forEach(p => {
+                        p.score = 0;
+                        p.totalScore = 0;
+                        p.role = null;
+                    });
+                    room.message = 'Mission Aborted. Player left. Waiting for crew...';
+                }
+                io.to(roomCode).emit('state_update', room);
+            }
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
-        // Handle cleanup if needed
+        // We could handle auto-leave here, but for now we rely on explicit leave 
+        // or reconnection logic. If we want auto-leave on disconnect, we'd need 
+        // to map socket.id to roomCode.
     });
 });
 

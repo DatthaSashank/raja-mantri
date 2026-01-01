@@ -86,7 +86,7 @@ const GameController = () => {
             socket.off(SOCKET_EVENTS.WRONG_GUESS, handleWrongGuess);
             socket.off(SOCKET_EVENTS.GAME_STARTED, handleGameStarted);
         };
-    }, [socket]);
+    }, [socket, isReconnecting]);
 
     const handleStartGame = () => {
         if (room && socket) {
@@ -112,6 +112,16 @@ const GameController = () => {
         }
     };
 
+    const handleExit = () => {
+        if (room && socket) {
+            if (confirm("Are you sure you want to abort the mission?")) {
+                socket.emit(SOCKET_EVENTS.LEAVE_ROOM, { roomCode: room.code });
+                clearRoomCode();
+                window.location.reload();
+            }
+        }
+    };
+
     if (!socket) return <div>Initializing Comms...</div>;
 
     if (!room) {
@@ -127,7 +137,10 @@ const GameController = () => {
     if (room.gameState === GAME_STATE.LOBBY) {
         return (
             <div className="setup-container">
-                <h2>Mission Control: {room.code}</h2>
+                <div className="lobby-header">
+                    <h2>Mission Control: {room.code}</h2>
+                    <button className="exit-btn" onClick={handleExit} title="Exit Mission">❌</button>
+                </div>
                 <div className="player-list">
                     {room.players.map((p, i) => (
                         <div key={i} className="player-list-item">
@@ -175,8 +188,11 @@ const GameController = () => {
     return (
         <div className="game-controller">
             <div className="status-bar">
-                <p>Room: {room.code} | Round: {room.round}</p>
-                <p>{room.message}</p>
+                <div className="status-info">
+                    <p>Room: {room.code} | Round: {room.round}</p>
+                    <p>{room.message}</p>
+                </div>
+                <button className="exit-btn-small" onClick={handleExit}>Exit</button>
                 {notification && <div className="notification">{notification}</div>}
             </div>
 
