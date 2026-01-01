@@ -92,7 +92,7 @@ const Lobby = () => {
                 transition={{ type: "spring", bounce: 0.4, duration: 1.5 }}
             >
                 <h1 className="game-title">RAJA MANTRI</h1>
-                <p className="tagline">The Deception Protocol</p>
+                {/* Tagline Removed */}
 
                 {mode === 'MENU' && (
                     <div className="lobby-menu">
