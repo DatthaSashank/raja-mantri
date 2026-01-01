@@ -1,49 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import soundManager from '../utils/SoundManager';
 import { getSessionId } from '../utils/session';
+import { useSocket } from '../context/SocketContext';
+import { SOCKET_EVENTS } from '../utils/constants';
 
-const Lobby = ({ socket, onJoin, serverUrl }) => {
+const Lobby = () => {
+    const { socket, isConnected } = useSocket();
     const [playerName, setPlayerName] = useState(localStorage.getItem('rm_playerName') || '');
     const [roomCode, setRoomCode] = useState('');
     const [mode, setMode] = useState('MENU'); // MENU, JOIN, WAITING
     const [error, setError] = useState('');
-    const [currentRoom, setCurrentRoom] = useState(null);
 
-    React.useEffect(() => {
-        socket.on('error', (msg) => {
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleError = (msg) => {
             setError(msg);
             setMode('MENU');
             soundManager.playFailure();
-        });
-        return () => socket.off('error');
+        };
+
+        socket.on(SOCKET_EVENTS.ERROR, handleError);
+        return () => socket.off(SOCKET_EVENTS.ERROR, handleError);
     }, [socket]);
 
     const handleCreate = () => {
         if (!playerName) { setError('Name Required'); return; }
+        if (!socket) { setError('Connection Lost'); return; }
+
         soundManager.playClick();
         localStorage.setItem('rm_playerName', playerName);
         const sessionId = getSessionId();
-        socket.emit('create_room', { playerName, sessionId });
+        socket.emit(SOCKET_EVENTS.CREATE_ROOM, { playerName, sessionId });
         setMode('WAITING');
     };
 
     const handleJoin = () => {
         if (!playerName || !roomCode) { setError('Name & Code Required'); return; }
+        if (!socket) { setError('Connection Lost'); return; }
+
         soundManager.playClick();
         localStorage.setItem('rm_playerName', playerName);
         const sessionId = getSessionId();
-        socket.emit('join_room', { roomCode: roomCode.toUpperCase(), playerName, sessionId });
+        socket.emit(SOCKET_EVENTS.JOIN_ROOM, { roomCode: roomCode.toUpperCase(), playerName, sessionId });
         setMode('WAITING');
     };
-
-    // Listen for room updates handled in parent or here?
-    // Better to handle in parent (GameController) or pass down state.
-    // For now, let's assume GameController handles the socket events and passes 'room' prop?
-    // Or we can listen here for initial connection.
-
-    // Actually, GameController will manage the socket listeners. 
-    // This component just emits.
 
     return (
         <motion.div
@@ -63,8 +65,8 @@ const Lobby = ({ socket, onJoin, serverUrl }) => {
                         className="lobby-input"
                     />
                     <div className="lobby-actions">
-                        <button onClick={handleCreate}>Create Mission</button>
-                        <button onClick={() => setMode('JOIN')}>Join Mission</button>
+                        <button onClick={handleCreate} disabled={!isConnected}>Create Mission</button>
+                        <button onClick={() => setMode('JOIN')} disabled={!isConnected}>Join Mission</button>
                     </div>
                 </div>
             )}
@@ -87,7 +89,7 @@ const Lobby = ({ socket, onJoin, serverUrl }) => {
                         maxLength={4}
                     />
                     <div className="lobby-actions">
-                        <button onClick={handleJoin}>Connect</button>
+                        <button onClick={handleJoin} disabled={!isConnected}>Connect</button>
                         <button onClick={() => setMode('MENU')} className="secondary-btn">Back</button>
                     </div>
                 </div>
@@ -102,7 +104,7 @@ const Lobby = ({ socket, onJoin, serverUrl }) => {
 
             {error && <p className="error-message">{error}</p>}
             <div style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#555' }}>
-                Server: {serverUrl}
+                Status: {isConnected ? 'Online' : 'Offline'}
             </div>
         </motion.div>
     );
