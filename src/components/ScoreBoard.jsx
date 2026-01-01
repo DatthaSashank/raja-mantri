@@ -13,7 +13,7 @@ const ScoreBoard = ({ players, history, onNextRound, isGameOver }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
         >
-            <h2>{isGameOver ? "Mission Complete - Final Report" : "Round Results"}</h2>
+            <h2>{isGameOver ? "Game Over - Final Report" : "Round Results"}</h2>
 
             <div className="results-table">
                 <div className="table-header">

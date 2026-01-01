@@ -23,7 +23,7 @@ const GameController = () => {
             const lastRoom = getLastRoomCode();
             if (lastRoom) {
                 setIsReconnecting(true);
-                const savedName = localStorage.getItem('rm_playerName') || 'Agent';
+                const savedName = localStorage.getItem('rm_playerName') || 'Player';
                 const sessionId = getSessionId();
                 socket.emit(SOCKET_EVENTS.JOIN_ROOM, { roomCode: lastRoom, playerName: savedName, sessionId });
             }
@@ -114,7 +114,7 @@ const GameController = () => {
 
     const handleExit = () => {
         if (room && socket) {
-            if (confirm("Are you sure you want to abort the mission?")) {
+            if (confirm("Are you sure you want to leave the game?")) {
                 socket.emit(SOCKET_EVENTS.LEAVE_ROOM, { roomCode: room.code });
                 clearRoomCode();
                 window.location.reload();
@@ -127,19 +127,19 @@ const GameController = () => {
     if (!room) {
         return (
             <>
-                {isReconnecting && <div className="notification">Reconnecting to Mission...</div>}
+                {isReconnecting && <div className="notification">Rejoining Game...</div>}
                 <Lobby />
             </>
         );
     }
 
-    // Waiting Room Logic
     if (room.gameState === GAME_STATE.LOBBY) {
         return (
             <div className="setup-container">
+                <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">❌</button>
+
                 <div className="lobby-header">
-                    <h2>Mission Control: {room.code}</h2>
-                    <button className="exit-btn" onClick={handleExit} title="Exit Mission">❌</button>
+                    <h2>Game Room: {room.code}</h2>
                 </div>
                 <div className="player-list">
                     {room.players.map((p, i) => (
@@ -148,10 +148,10 @@ const GameController = () => {
                         </div>
                     ))}
                 </div>
-                <p>Waiting for crew ({room.players.length}/5)...</p>
-                <p>Mission Length: {room.maxRounds} Rounds</p>
+                <p>Waiting for players ({room.players.length}/5)...</p>
+                <p>Game Length: {room.maxRounds} Rounds</p>
                 {room.players.length === 5 && room.players[0].id === socketId && (
-                    <button className="start-btn" onClick={handleStartGame}>Launch Mission</button>
+                    <button className="start-btn" onClick={handleStartGame}>Start Game</button>
                 )}
             </div>
         );
@@ -187,12 +187,13 @@ const GameController = () => {
 
     return (
         <div className="game-controller">
+            <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">❌</button>
+
             <div className="status-bar">
                 <div className="status-info">
                     <p>Room: {room.code} | Round: {room.round}</p>
                     <p>{room.message}</p>
                 </div>
-                <button className="exit-btn-small" onClick={handleExit}>Exit</button>
                 {notification && <div className="notification">{notification}</div>}
             </div>
 
@@ -211,7 +212,7 @@ const GameController = () => {
 
             {/* Other Players Grid */}
             <div className="game-area">
-                <h3>Crew Status</h3>
+                <h3>Players</h3>
                 <div className="players-grid">
                     {room.players.map((p, idx) => {
                         if (p.id === socketId) return null; // Skip self in grid

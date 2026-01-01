@@ -54,20 +54,20 @@ const Lobby = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
         >
-            <h2>Zero-G Uplink</h2>
+            <h2>Raja Mantri</h2>
 
             {mode === 'MENU' && (
                 <div className="lobby-menu">
                     <input
                         type="text"
-                        placeholder="Enter Codename"
+                        placeholder="Enter Name"
                         value={playerName}
                         onChange={e => setPlayerName(e.target.value)}
                         className="lobby-input"
                     />
 
                     <div className="rounds-selector">
-                        <label>Mission Duration (Rounds):</label>
+                        <label>Game Duration (Rounds):</label>
                         <select
                             value={maxRounds}
                             onChange={(e) => setMaxRounds(Number(e.target.value))}
@@ -80,8 +80,8 @@ const Lobby = () => {
                     </div>
 
                     <div className="lobby-actions">
-                        <button onClick={handleCreate} disabled={!isConnected}>Create Mission</button>
-                        <button onClick={() => setMode('JOIN')} disabled={!isConnected}>Join Mission</button>
+                        <button onClick={handleCreate} disabled={!isConnected}>Create Game</button>
+                        <button onClick={() => setMode('JOIN')} disabled={!isConnected}>Join Game</button>
                     </div>
                 </div>
             )}
@@ -90,14 +90,14 @@ const Lobby = () => {
                 <div className="lobby-menu">
                     <input
                         type="text"
-                        placeholder="Enter Codename"
+                        placeholder="Enter Name"
                         value={playerName}
                         onChange={e => setPlayerName(e.target.value)}
                         className="lobby-input"
                     />
                     <input
                         type="text"
-                        placeholder="Mission Code (4 Chars)"
+                        placeholder="Game Code (4 Chars)"
                         value={roomCode}
                         onChange={e => setRoomCode(e.target.value)}
                         className="lobby-input"
