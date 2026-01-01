@@ -4,6 +4,11 @@ import soundManager from '../utils/SoundManager';
 import { getSessionId } from '../utils/session';
 import { useSocket } from '../context/SocketContext';
 import { SOCKET_EVENTS } from '../utils/constants';
+import kingImg from '../assets/king.png';
+import queenImg from '../assets/queen.png';
+import policeImg from '../assets/police.png';
+import thiefImg from '../assets/thief.png';
+import ministerImg from '../assets/minister.png';
 
 const Lobby = () => {
     const { socket, isConnected } = useSocket();
@@ -50,11 +55,36 @@ const Lobby = () => {
 
     return (
         <motion.div
-            className="center-content"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            className="center-content relative-container"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
         >
-            <div className="glass-panel">
+            {/* Animated Character Showcase */}
+            <div className="character-showcase">
+                <motion.img
+                    src={kingImg} className="floating-char char-king"
+                    animate={{ y: [0, -20, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <motion.img
+                    src={queenImg} className="floating-char char-queen"
+                    animate={{ y: [0, -15, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                />
+                <motion.img
+                    src={policeImg} className="floating-char char-police"
+                    animate={{ y: [0, -18, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                />
+                <motion.img
+                    src={thiefImg} className="floating-char char-thief"
+                    animate={{ y: [0, -12, 0] }} transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                />
+            </div>
+
+            <motion.div
+                className="glass-panel"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", duration: 0.8 }}
+            >
                 <h2>Raja Mantri</h2>
 
                 {mode === 'MENU' && (
@@ -122,7 +152,7 @@ const Lobby = () => {
                 <div style={{ marginTop: '2rem', fontSize: '0.7rem', color: '#555', letterSpacing: '1px' }}>
                     SYSTEM STATUS: <span style={{ color: isConnected ? 'var(--neon-cyan)' : 'var(--neon-pink)' }}>{isConnected ? 'ONLINE' : 'OFFLINE'}</span>
                 </div>
-            </div>
+            </motion.div>
         </motion.div>
     );
 };

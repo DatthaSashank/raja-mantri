@@ -64,6 +64,89 @@ body::before {
     text-align: center;
     border: 4px solid #fff;
     outline: 1px solid rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+/* Character Showcase */
+.relative-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+.character-showcase {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.floating-char {
+    position: absolute;
+    width: 150px;
+    height: auto;
+    filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.1));
+    z-index: 5;
+}
+
+.char-king {
+    top: 15%;
+    left: 15%;
+    width: 180px;
+    transform: rotate(-10deg);
+}
+
+.char-queen {
+    bottom: 15%;
+    right: 15%;
+    width: 160px;
+    transform: rotate(10deg);
+}
+
+.char-police {
+    top: 20%;
+    right: 20%;
+    width: 140px;
+    transform: rotate(5deg);
+}
+
+.char-thief {
+    bottom: 20%;
+    left: 20%;
+    width: 130px;
+    transform: rotate(-5deg);
+}
+
+/* Mobile Adjustments for Showcase */
+@media (max-width: 768px) {
+    .floating-char {
+        opacity: 0.3;
+        /* Fade out on mobile to not block text */
+        width: 100px;
+    }
+
+    .char-king {
+        top: 5%;
+        left: 5%;
+    }
+
+    .char-queen {
+        bottom: 5%;
+        right: 5%;
+    }
+
+    .char-police {
+        top: 10%;
+        right: 5%;
+    }
+
+    .char-thief {
+        bottom: 10%;
+        left: 5%;
+    }
 }
 
 .glass-panel.game-mode {
