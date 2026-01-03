@@ -1,7 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
-import SimplePeer from 'simple-peer';
-import { useSocket } from '../context/SocketContext';
-import { Mic, MicOff } from 'lucide-react';
+import { Buffer } from 'buffer';
+
+// Polyfill Buffer for simple-peer
+if (!window.Buffer) {
+    window.Buffer = Buffer;
+}
+
+// ... existing imports ...
+
+// ... VoiceChatManager Component ...
 
 const VoiceChatManager = ({ roomCode }) => {
     const { socket, socketId } = useSocket();
@@ -165,11 +171,19 @@ const AudioPlayer = ({ peer }) => {
     const ref = useRef();
 
     useEffect(() => {
-        peer.on("stream", stream => {
+        const handleStream = (stream) => {
+            console.log("VC: Received Remote Stream ID:", stream.id);
             if (ref.current) {
                 ref.current.srcObject = stream;
+                ref.current.play().catch(e => console.error("VC: Play failed:", e));
             }
-        });
+        };
+
+        peer.on("stream", handleStream);
+
+        return () => {
+            peer.off("stream", handleStream);
+        };
     }, [peer]);
 
     return (
