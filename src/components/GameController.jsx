@@ -117,7 +117,7 @@ const GameController = () => {
             if (confirm("Are you sure you want to leave the game?")) {
                 socket.emit(SOCKET_EVENTS.LEAVE_ROOM, { roomCode: room.code });
                 clearRoomCode();
-                window.location.reload();
+                window.location.href = window.location.origin;
             }
         }
     };
