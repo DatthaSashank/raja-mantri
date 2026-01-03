@@ -103,7 +103,7 @@ const VoiceChatManager = ({ roomCode }) => {
     };
 
     return (
-        <div className="voice-controls" style={{ position: 'fixed', bottom: '20px', left: '20px', zIndex: 1000 }}>
+        <div className="voice-controls" style={{ position: 'fixed', top: '30px', left: '100px', zIndex: 1000 }}>
             <button
                 onClick={toggleMute}
                 style={{
