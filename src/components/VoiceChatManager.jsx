@@ -109,7 +109,7 @@ const VoiceChatManager = ({ roomCode }) => {
                 onClick={toggleMute}
                 title={isMuted ? "Unmute Mic" : "Mute Mic"}
                 style={{
-                    left: '100px', // Position next to the Sound button (which is at 30px + 50px width + 20px gap)
+                    left: '90px', // Position next to the Sound button (30px + 50px width + 10px gap)
                     background: isMuted ? 'rgba(255, 68, 68, 0.2)' : 'rgba(0,0,0,0.5)',
                     borderColor: isMuted ? '#ff4444' : 'var(--neon-gold)',
                     color: isMuted ? '#ff4444' : 'var(--neon-gold)'

@@ -102,7 +102,7 @@ const Lobby = () => {
                 transition={{ type: "spring", bounce: 0.4, duration: 1.5 }}
             >
                 <h1 className="game-title">RAJA MANTRI</h1>
-                {/* Tagline Removed */}
+                <div className="tagline">ROYAL DECEPTION</div>
 
                 {mode === 'MENU' && (
                     <div className="lobby-menu">
