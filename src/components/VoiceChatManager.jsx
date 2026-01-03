@@ -65,16 +65,28 @@ const VoiceChatManager = ({ roomCode }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [roomCode]); // Re-run if room changes? mostly just on mount
 
+    const rtcConfig = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:global.stun.twilio.com:3478' }
+        ]
+    };
+
     function createPeer(userToSignal, callerID, stream) {
         const peer = new SimplePeer({
             initiator: true,
             trickle: false,
             stream,
+            config: rtcConfig
         });
 
         peer.on("signal", signal => {
+            console.log("VC: Sending Signal", { userToSignal, callerID });
             socket.emit("sending_signal", { userToSignal, callerID, signal });
         });
+
+        peer.on("connect", () => console.log("VC: Peer Connected!"));
+        peer.on("error", err => console.error("VC: Peer Error", err));
 
         return peer;
     }
@@ -84,11 +96,16 @@ const VoiceChatManager = ({ roomCode }) => {
             initiator: false,
             trickle: false,
             stream,
+            config: rtcConfig
         });
 
         peer.on("signal", signal => {
+            console.log("VC: Returning Signal", { callerID });
             socket.emit("returning_signal", { signal, callerID });
         });
+
+        peer.on("connect", () => console.log("VC: Peer Connected!"));
+        peer.on("error", err => console.error("VC: Peer Error", err));
 
         peer.signal(incomingSignal);
 
