@@ -5,9 +5,10 @@ if (!window.Buffer) {
     window.Buffer = Buffer;
 }
 
-// ... existing imports ...
-
-// ... VoiceChatManager Component ...
+import React, { useEffect, useState, useRef } from 'react';
+import SimplePeer from 'simple-peer';
+import { useSocket } from '../context/SocketContext';
+import { Mic, MicOff } from 'lucide-react';
 
 const VoiceChatManager = ({ roomCode }) => {
     const { socket, socketId } = useSocket();
