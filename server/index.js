@@ -66,25 +66,46 @@ io.on('connection', (socket) => {
             existingPlayer.id = socket.id; // Update socket ID
             socket.join(roomCode);
             io.to(roomCode).emit('state_update', room);
-            // Send specific welcome back message to this user? 
-            // state_update is enough usually.
+            // Send existing users to the reconnected user for voice connection
+            socket.emit('all_users', room.players.filter(p => p.id !== socket.id));
             console.log(`Player ${existingPlayer.name} reconnected to ${roomCode}`);
         } else if (room.gameState === 'LOBBY' && room.players.length < 5) {
             // NEW PLAYER JOIN
-            room.players.push({
+            const newPlayer = {
                 id: socket.id,
                 sessionId,
                 name: playerName,
                 score: 0,
                 totalScore: 0,
                 role: null
-            });
+            };
+            room.players.push(newPlayer);
             socket.join(roomCode);
             io.to(roomCode).emit('state_update', room);
+
+            // Notify others that a new user has joined (so they can expect a signal? No, we use all_users for the joiner to initiatie)
+            // actually, typical mesh: 
+            // 1. Joiner gets list of all users -> Initiates call to each.
+            // 2. Existing users receive 'sending_signal' and return answer.
+
+            // Send list of *other* players to the new joiner
+            const otherPlayers = room.players.filter(p => p.id !== socket.id);
+            socket.emit('all_users', otherPlayers);
+
+            // Also notify others explicitly if needed, but 'state_update' handles UI. Voice relies on signaling.
         } else {
             socket.emit('error', 'Room full or game in progress');
         }
     });
+
+    socket.on('sending_signal', payload => {
+        io.to(payload.userToSignal).emit('user_joined_signal', { signal: payload.signal, callerID: payload.callerID });
+    });
+
+    socket.on('returning_signal', payload => {
+        io.to(payload.callerID).emit('receiving_returned_signal', { signal: payload.signal, id: socket.id });
+    });
+
 
     socket.on('start_game', ({ roomCode }) => {
         const room = rooms[roomCode];

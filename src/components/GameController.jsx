@@ -13,6 +13,7 @@ import queenImg from '../assets/queen.png';
 import ministerImg from '../assets/minister.png';
 import policeImg from '../assets/police.png';
 import thiefImg from '../assets/thief.png';
+import VoiceChatManager from './VoiceChatManager';
 
 const GameController = () => {
     const { socket, socketId } = useSocket();
@@ -24,8 +25,6 @@ const GameController = () => {
         if (!socket) return;
 
         const handleConnect = () => {
-            // Auto-reconnect removed to prevent unwanted room creation/joining on startup
-            // Users must manually Join or Create, or use an Invite Link
             setIsReconnecting(false);
         };
 
@@ -64,7 +63,6 @@ const GameController = () => {
             soundManager.playStart();
         };
 
-        // If socket is already connected when component mounts (e.g. hot reload or navigation)
         if (socket.connected) {
             handleConnect();
         }
@@ -103,8 +101,6 @@ const GameController = () => {
     const handleNextRound = () => {
         if (room && socket) {
             if (room.gameState === GAME_STATE.GAME_OVER) {
-                // Reset to Lobby (reload page or clear state)
-                // Reloading is safest to clear all state
                 window.location.reload();
             } else {
                 socket.emit(SOCKET_EVENTS.NEXT_ROUND, { roomCode: room.code });
@@ -136,6 +132,7 @@ const GameController = () => {
     if (room.gameState === GAME_STATE.LOBBY) {
         return (
             <div className="glass-panel">
+                <VoiceChatManager roomCode={room.code} />
                 <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">EXIT ROOM</button>
 
                 <div className="lobby-header">
@@ -170,19 +167,21 @@ const GameController = () => {
     }
 
     // Find My Player Object
-    // Use socketId from context which is reliable
     const myPlayer = room.players.find(p => p.id === socketId);
-
     if (!myPlayer) return <div>Error: Player data sync failure. Refreshing...</div>;
 
     if (room.gameState === GAME_STATE.RESULT || room.gameState === GAME_STATE.GAME_OVER) {
         return (
-            <ScoreBoard
-                players={room.players}
-                history={[]}
-                onNextRound={handleNextRound}
-                isGameOver={room.gameState === GAME_STATE.GAME_OVER}
-            />
+            <>
+                {/* Keep voice chat active during results */}
+                <VoiceChatManager roomCode={room.code} />
+                <ScoreBoard
+                    players={room.players}
+                    history={[]}
+                    onNextRound={handleNextRound}
+                    isGameOver={room.gameState === GAME_STATE.GAME_OVER}
+                />
+            </>
         );
     }
 
@@ -198,63 +197,61 @@ const GameController = () => {
     };
 
     return (
-        <div className="glass-panel game-mode">
-            <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">EXIT ROOM</button>
+        <div className="game-mode">
+            <VoiceChatManager roomCode={room.code} />
+            <div className="game-header glass-panel" style={{ padding: '0.5rem 2rem', borderRadius: '50px', marginBottom: '1rem', width: 'auto' }}>
+                <div className="game-title" style={{ fontSize: '1.5rem', margin: 0 }}>RAJA MANTRI</div>
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                    <div style={{ color: '#00f2ff', fontFamily: 'Orbitron' }}>ROOM: {room.code}</div>
+                    <button className="modern-btn btn-exit" onClick={handleExit} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>EXIT</button>
+                </div>
+            </div>
 
             <div className="status-bar">
                 <div className="status-info">
-                    <p>Room: {room.code} | Round: {room.round}</p>
-                    <p>{room.message}</p>
+                    <p>Round: {room.round} | {room.message}</p>
                 </div>
                 {notification && <div className="notification">{notification}</div>}
             </div>
 
-            {/* My Role Card (Private) */}
-            <div className="my-role-section">
-                <h3>Your Identity</h3>
-                <div className="card-wrapper">
-                    <Card
-                        title={myPlayer.role}
-                        isRevealed={true}
-                        icon={getRoleIcon(myPlayer.role)}
-                        onClick={() => { }} // No action
-                    />
-                </div>
-            </div>
+            <div className="game-table">
+                {room.players.map((p, idx) => {
+                    const isMe = p.id === socketId;
+                    const isRevealed = room.revealedRoles[idx] || isMe; // Review my own role always
+                    const currentTurnRole = CHAIN_ORDER[room.chainIndex];
+                    // Mantri's turn to guess
+                    const isMyTurn = myPlayer.role === currentTurnRole;
+                    // Can only select others if it's my turn
+                    const isSelectable = !isMe && isMyTurn && !isRevealed;
 
-            {/* Other Players Grid */}
-            <div className="game-area">
-                <h3>Players</h3>
-                <div className="players-grid">
-                    {room.players.map((p, idx) => {
-                        if (p.id === socketId) return null; // Skip self in grid
+                    // Highlight active player
+                    const isActive = p.role === currentTurnRole;
 
-                        const isRevealed = room.revealedRoles[idx];
-                        const currentTurnRole = CHAIN_ORDER[room.chainIndex];
-                        const isMyTurn = myPlayer.role === currentTurnRole;
-                        const isSelectable = isMyTurn && !isRevealed;
-
-                        return (
-                            <motion.div
-                                key={idx}
-                                className="player-slot"
-                                layout
-                            >
-                                <Card
-                                    title={isRevealed ? p.role : "???"}
-                                    content={isRevealed ? "" : "Encrypted"}
-                                    isRevealed={!!isRevealed}
-                                    icon={isRevealed ? getRoleIcon(p.role) : "🔒"}
-                                    onClick={() => {
-                                        if (isSelectable) handleGuess(idx);
-                                    }}
-                                />
-                                <div className="player-name">{p.name}</div>
-                                {p.role === currentTurnRole && <div className="indicator">ACTIVE</div>}
-                            </motion.div>
-                        );
-                    })}
-                </div>
+                    return (
+                        <motion.div
+                            key={idx}
+                            className={`player-tile ${isActive ? 'active-turn' : ''}`}
+                            layout
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: idx * 0.1 }}
+                        >
+                            <Card
+                                title={isMe ? `${p.role} (You)` : (isRevealed ? p.role : "???")}
+                                content={isRevealed ? "" : "Encrypted"}
+                                isRevealed={!!isRevealed}
+                                icon={isRevealed ? getRoleIcon(p.role) : "🔒"}
+                                isActive={isActive}
+                                onClick={() => {
+                                    if (isSelectable) handleGuess(idx);
+                                }}
+                            />
+                            <div className="player-info">
+                                <span className="player-name">{p.name} {isMe ? '(You)' : ''}</span>
+                            </div>
+                        </motion.div>
+                    );
+                })}
             </div>
         </div>
     );
