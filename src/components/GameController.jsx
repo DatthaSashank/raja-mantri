@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Lobby from './Lobby';
 import RoleReveal from './RoleReveal';
 import ScoreBoard from './ScoreBoard';
 import soundManager from '../utils/SoundManager';
 import Card from './Card';
-import { getSessionId, saveRoomCode, getLastRoomCode, clearRoomCode } from '../utils/session';
 import { useSocket } from '../context/SocketContext';
 import { SOCKET_EVENTS, GAME_STATE, CHAIN_ORDER, ROLES } from '../utils/constants';
 import kingImg from '../assets/king.png';
@@ -14,37 +12,12 @@ import ministerImg from '../assets/minister.png';
 import policeImg from '../assets/police.png';
 import thiefImg from '../assets/thief.png';
 
-const GameController = () => {
+const GameController = ({ room }) => {
     const { socket, socketId } = useSocket();
-    const [room, setRoom] = useState(null);
     const [notification, setNotification] = useState('');
-    const [isReconnecting, setIsReconnecting] = useState(false);
 
     useEffect(() => {
         if (!socket) return;
-
-        const handleConnect = () => {
-            setIsReconnecting(false);
-        };
-
-        const handleRoomCreated = ({ roomCode, state }) => {
-            setRoom(state);
-            saveRoomCode(roomCode);
-            setIsReconnecting(false);
-        };
-
-        const handleStateUpdate = (updatedRoom) => {
-            setRoom(updatedRoom);
-            saveRoomCode(updatedRoom.code);
-            setIsReconnecting(false);
-        };
-
-        const handleError = () => {
-            if (isReconnecting) {
-                clearRoomCode();
-                setIsReconnecting(false);
-            }
-        };
 
         const handleCorrectGuess = ({ message }) => {
             soundManager.playSuccess();
@@ -62,28 +35,16 @@ const GameController = () => {
             soundManager.playStart();
         };
 
-        if (socket.connected) {
-            handleConnect();
-        }
-
-        socket.on(SOCKET_EVENTS.CONNECT, handleConnect);
-        socket.on(SOCKET_EVENTS.ROOM_CREATED, handleRoomCreated);
-        socket.on(SOCKET_EVENTS.STATE_UPDATE, handleStateUpdate);
-        socket.on(SOCKET_EVENTS.ERROR, handleError);
         socket.on(SOCKET_EVENTS.CORRECT_GUESS, handleCorrectGuess);
         socket.on(SOCKET_EVENTS.WRONG_GUESS, handleWrongGuess);
         socket.on(SOCKET_EVENTS.GAME_STARTED, handleGameStarted);
 
         return () => {
-            socket.off(SOCKET_EVENTS.CONNECT, handleConnect);
-            socket.off(SOCKET_EVENTS.ROOM_CREATED, handleRoomCreated);
-            socket.off(SOCKET_EVENTS.STATE_UPDATE, handleStateUpdate);
-            socket.off(SOCKET_EVENTS.ERROR, handleError);
             socket.off(SOCKET_EVENTS.CORRECT_GUESS, handleCorrectGuess);
             socket.off(SOCKET_EVENTS.WRONG_GUESS, handleWrongGuess);
             socket.off(SOCKET_EVENTS.GAME_STARTED, handleGameStarted);
         };
-    }, [socket, isReconnecting]);
+    }, [socket]);
 
     const handleStartGame = () => {
         if (room && socket) {
@@ -107,32 +68,11 @@ const GameController = () => {
         }
     };
 
-    const handleExit = () => {
-        if (room && socket) {
-            if (confirm("Are you sure you want to leave the game?")) {
-                socket.emit(SOCKET_EVENTS.LEAVE_ROOM, { roomCode: room.code });
-                clearRoomCode();
-                window.location.href = window.location.origin;
-            }
-        }
-    };
-
-    if (!socket) return <div>Initializing Comms...</div>;
-
-    if (!room) {
-        return (
-            <>
-                {isReconnecting && <div className="notification">Rejoining Game...</div>}
-                <Lobby />
-            </>
-        );
-    }
+    if (!room) return null; // Should be handled by parent
 
     if (room.gameState === GAME_STATE.LOBBY) {
         return (
             <div className="glass-panel">
-                <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">EXIT ROOM</button>
-
                 <div className="lobby-header">
                     <h2>Game Room: {room.code}</h2>
                     <button
@@ -171,7 +111,6 @@ const GameController = () => {
     if (room.gameState === GAME_STATE.RESULT || room.gameState === GAME_STATE.GAME_OVER) {
         return (
             <>
-                {/* Keep voice chat active during results */}
                 <ScoreBoard
                     players={room.players}
                     history={[]}
@@ -199,7 +138,6 @@ const GameController = () => {
                 <div className="game-title" style={{ fontSize: '1.5rem', margin: 0 }}>RAJA MANTRI</div>
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                     <div style={{ color: '#00f2ff', fontFamily: 'Orbitron' }}>ROOM: {room.code}</div>
-                    <button className="modern-btn btn-exit" onClick={handleExit} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>EXIT</button>
                 </div>
             </div>
 
