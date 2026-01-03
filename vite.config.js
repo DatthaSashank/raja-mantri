@@ -16,4 +16,7 @@ export default defineConfig({
     // Alternatively, we could add 'window.global = window' in index.html
     global: 'globalThis',
   },
+  build: {
+    chunkSizeWarningLimit: 1600,
+  },
 })
