@@ -170,25 +170,71 @@ const VoiceChatManager = ({ roomCode }) => {
 
 const AudioPlayer = ({ peer }) => {
     const ref = useRef();
+    const [volume, setVolume] = useState(0);
 
     useEffect(() => {
         const handleStream = (stream) => {
             console.log("VC: Received Remote Stream ID:", stream.id);
             if (ref.current) {
                 ref.current.srcObject = stream;
-                ref.current.play().catch(e => console.error("VC: Play failed:", e));
+
+                // Attempt to play
+                ref.current.play().catch(e => console.error("VC: Play failed (Autoplay limit?):", e));
+
+                // Visualize Audio
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const source = audioContext.createMediaStreamSource(stream);
+                    const analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    source.connect(analyser);
+
+                    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                    const updateVolume = () => {
+                        analyser.getByteFrequencyData(dataArray);
+                        // Get average volume
+                        const avg = dataArray.reduce((p, c) => p + c, 0) / dataArray.length;
+                        setVolume(avg);
+                        requestAnimationFrame(updateVolume);
+                    };
+                    updateVolume();
+                } catch (err) {
+                    console.error("VC: AudioContext Error", err);
+                }
             }
         };
 
         peer.on("stream", handleStream);
 
         return () => {
-            peer.off("stream", handleStream);
+            // Cleanup handled by ref/peer
         };
     }, [peer]);
 
+    // Visual indicator of audio
     return (
-        <audio playsInline autoPlay ref={ref} />
+        <div style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 2000 }}>
+            <audio playsInline autoPlay ref={ref} controls={false} />
+            <div style={{
+                width: '20px',
+                height: '60px',
+                background: 'rgba(0,0,0,0.5)',
+                border: '1px solid #00f2ff',
+                borderRadius: '5px',
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'flex-end'
+            }}>
+                <div style={{
+                    width: '100%',
+                    height: `${Math.min(volume, 100)}%`,
+                    background: '#00f2ff',
+                    transition: 'height 0.1s'
+                }} />
+            </div>
+            <div style={{ color: 'white', fontSize: '10px' }}>Remote</div>
+        </div>
     );
 };
 
