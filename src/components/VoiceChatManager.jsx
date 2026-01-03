@@ -59,6 +59,10 @@ const VoiceChatManager = ({ roomCode }) => {
                         item.peer.signal(payload.signal);
                     }
                 });
+
+                // Now that we represent ready, ask for users
+                console.log("VC: Requesting users for room", roomCode);
+                socket.emit("join_voice", { roomCode });
             })
             .catch(err => {
                 console.error("Voice Chat Error:", err);

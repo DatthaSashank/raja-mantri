@@ -66,8 +66,7 @@ io.on('connection', (socket) => {
             existingPlayer.id = socket.id; // Update socket ID
             socket.join(roomCode);
             io.to(roomCode).emit('state_update', room);
-            // Send existing users to the reconnected user for voice connection
-            socket.emit('all_users', room.players.filter(p => p.id !== socket.id));
+            // Voice connection will be re-established via 'join_voice'
             console.log(`Player ${existingPlayer.name} reconnected to ${roomCode}`);
         } else if (room.gameState === 'LOBBY' && room.players.length < 5) {
             // NEW PLAYER JOIN
@@ -83,18 +82,19 @@ io.on('connection', (socket) => {
             socket.join(roomCode);
             io.to(roomCode).emit('state_update', room);
 
-            // Notify others that a new user has joined (so they can expect a signal? No, we use all_users for the joiner to initiatie)
-            // actually, typical mesh: 
-            // 1. Joiner gets list of all users -> Initiates call to each.
-            // 2. Existing users receive 'sending_signal' and return answer.
-
-            // Send list of *other* players to the new joiner
-            const otherPlayers = room.players.filter(p => p.id !== socket.id);
-            socket.emit('all_users', otherPlayers);
-
-            // Also notify others explicitly if needed, but 'state_update' handles UI. Voice relies on signaling.
+            // Notify others that a new user has joined handled by state_update + signaling
+            // Verify logic: Voice setup now handled by 'join_voice' event
         } else {
             socket.emit('error', 'Room full or game in progress');
+        }
+    });
+
+    socket.on('join_voice', ({ roomCode }) => {
+        const room = rooms[roomCode];
+        if (room) {
+            // Send list of OTHER players to the joining user
+            const otherPlayers = room.players.filter(p => p.id !== socket.id);
+            socket.emit('all_users', otherPlayers);
         }
     });
 
