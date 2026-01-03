@@ -103,16 +103,19 @@ const VoiceChatManager = ({ roomCode }) => {
     };
 
     return (
-        <div className="voice-controls" style={{ position: 'fixed', top: '30px', left: '100px', zIndex: 1000 }}>
+        <>
             <button
                 className="mute-btn"
                 onClick={toggleMute}
                 title={isMuted ? "Unmute Mic" : "Mute Mic"}
                 style={{
+                    position: 'absolute',
+                    top: '30px',
                     left: '90px', // Position next to the Sound button (30px + 50px width + 10px gap)
                     background: isMuted ? 'rgba(255, 68, 68, 0.2)' : 'rgba(0,0,0,0.5)',
                     borderColor: isMuted ? '#ff4444' : 'var(--neon-gold)',
-                    color: isMuted ? '#ff4444' : 'var(--neon-gold)'
+                    color: isMuted ? '#ff4444' : 'var(--neon-gold)',
+                    zIndex: 1000
                 }}
             >
                 {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
@@ -124,7 +127,7 @@ const VoiceChatManager = ({ roomCode }) => {
                     <AudioPlayer key={p.peerID} peer={p.peer} />
                 );
             })}
-        </div>
+        </>
     );
 };
 

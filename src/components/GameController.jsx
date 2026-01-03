@@ -13,7 +13,6 @@ import queenImg from '../assets/queen.png';
 import ministerImg from '../assets/minister.png';
 import policeImg from '../assets/police.png';
 import thiefImg from '../assets/thief.png';
-import VoiceChatManager from './VoiceChatManager';
 
 const GameController = () => {
     const { socket, socketId } = useSocket();
@@ -132,7 +131,6 @@ const GameController = () => {
     if (room.gameState === GAME_STATE.LOBBY) {
         return (
             <div className="glass-panel">
-                <VoiceChatManager roomCode={room.code} />
                 <button className="exit-btn-corner" onClick={handleExit} title="Leave Game">EXIT ROOM</button>
 
                 <div className="lobby-header">
@@ -174,7 +172,6 @@ const GameController = () => {
         return (
             <>
                 {/* Keep voice chat active during results */}
-                <VoiceChatManager roomCode={room.code} />
                 <ScoreBoard
                     players={room.players}
                     history={[]}
@@ -198,7 +195,6 @@ const GameController = () => {
 
     return (
         <div className="game-mode">
-            <VoiceChatManager roomCode={room.code} />
             <div className="game-header glass-panel" style={{ padding: '0.5rem 2rem', borderRadius: '50px', marginBottom: '1rem', width: 'auto' }}>
                 <div className="game-title" style={{ fontSize: '1.5rem', margin: 0 }}>RAJA MANTRI</div>
                 <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>

@@ -3,6 +3,8 @@ import GameController from './components/GameController';
 import soundManager from './utils/SoundManager';
 import { Volume2, VolumeX } from 'lucide-react';
 
+import VoiceChatManager from './components/VoiceChatManager';
+
 function App() {
   const [isMuted, setIsMuted] = useState(false);
 
@@ -20,6 +22,7 @@ function App() {
       >
         {isMuted ? <VolumeX /> : <Volume2 />}
       </button>
+      <VoiceChatManager />
       <GameController />
     </div>
   );
