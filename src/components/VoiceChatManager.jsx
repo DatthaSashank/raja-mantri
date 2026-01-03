@@ -105,21 +105,17 @@ const VoiceChatManager = ({ roomCode }) => {
     return (
         <div className="voice-controls" style={{ position: 'fixed', top: '30px', left: '100px', zIndex: 1000 }}>
             <button
+                className="mute-btn"
                 onClick={toggleMute}
+                title={isMuted ? "Unmute Mic" : "Mute Mic"}
                 style={{
-                    background: isMuted ? '#ff4444' : '#00f2ff',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: '50px',
-                    height: '50px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 0 15px rgba(0,0,0,0.5)'
+                    left: '100px', // Position next to the Sound button (which is at 30px + 50px width + 20px gap)
+                    background: isMuted ? 'rgba(255, 68, 68, 0.2)' : 'rgba(0,0,0,0.5)',
+                    borderColor: isMuted ? '#ff4444' : 'var(--neon-gold)',
+                    color: isMuted ? '#ff4444' : 'var(--neon-gold)'
                 }}
             >
-                {isMuted ? <MicOff color="white" /> : <Mic color="black" />}
+                {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
             </button>
 
             {/* Render Audio Elements for Peers */}
