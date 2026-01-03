@@ -55,15 +55,28 @@ const VoiceChatManager = ({ roomCode }) => {
             })
             .catch(err => {
                 console.error("Voice Chat Error:", err);
-                alert("Could not access microphone. Voice chat disabled.");
+                // alert("Could not access microphone. Voice chat disabled."); 
+                // Alert removed to avoid annoyance if they just deny it
             });
 
         return () => {
-            // Cleanup handled by dependency unmounting, but we should destroy peers
-            // However, strictly unmounting might kill the stream.
+            // Cleanup: Remove listeners and destroy peers
+            socket.off("all_users");
+            socket.off("user_joined_signal");
+            socket.off("receiving_returned_signal");
+
+            peersRef.current.forEach(({ peer }) => {
+                if (peer) peer.destroy();
+            });
+            peersRef.current = [];
+            setPeers([]);
+
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [roomCode]); // Re-run if room changes? mostly just on mount
+    }, [roomCode]); // Re-run if room changes
 
     const rtcConfig = {
         iceServers: [

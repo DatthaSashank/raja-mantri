@@ -84,7 +84,7 @@ function App() {
         {isMuted ? <VolumeX /> : <Volume2 />}
       </button>
 
-      <VoiceChatManager />
+      {room && <VoiceChatManager roomCode={room.code} />}
 
       {room && (
         <button
