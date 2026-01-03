@@ -774,23 +774,25 @@ body {
 }
 
 .exit-btn-corner {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+    position: fixed;
+    top: 30px;
+    right: 30px;
     background: rgba(255, 68, 68, 0.1);
     border: 1px solid #ff4444;
     color: #ff4444;
-    padding: 8px 15px;
+    padding: 10px 20px;
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 0 10px rgba(255, 68, 68, 0.2);
     transition: all 0.3s ease;
-    z-index: 100;
+    z-index: 1000;
     width: auto;
     height: auto;
     border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .exit-btn-corner:hover {
