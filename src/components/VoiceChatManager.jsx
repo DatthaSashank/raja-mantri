@@ -15,7 +15,11 @@ const VoiceChatManager = ({ roomCode }) => {
     const [stream, setStream] = useState(null);
     const [peers, setPeers] = useState([]);
     const [isMuted, setIsMuted] = useState(false);
-    const peersRef = useRef([]); // Keep track of peer objects { peerID, peer }
+
+    // We store peers in a ref for direct access during signal handling,
+    // but we also keep them in state for rendering.
+    // The Ref will store: { peerID, peer }
+    const peersRef = useRef([]);
 
     useEffect(() => {
         // 1. Get User Media
@@ -26,8 +30,14 @@ const VoiceChatManager = ({ roomCode }) => {
                 // 2. Listen for 'all_users' to initiate calls
                 // This event is sent by server immediately after we join/reconnect
                 socket.on("all_users", (users) => {
-                    // Filter out self just in case, though server does it
+                    // Destroy existing peers to avoid duplicates/leaks
+                    peersRef.current.forEach(({ peer }) => {
+                        if (peer) peer.destroy();
+                    });
+                    peersRef.current = [];
+
                     const peersList = [];
+
                     users.forEach(user => {
                         const peer = createPeer(user.id, socketId, currentStream);
                         peersRef.current.push({
@@ -37,6 +47,7 @@ const VoiceChatManager = ({ roomCode }) => {
                         peersList.push({
                             peerID: user.id,
                             peer,
+                            remoteStream: null // Initialize with null stream
                         });
                     });
                     setPeers(peersList);
@@ -49,7 +60,8 @@ const VoiceChatManager = ({ roomCode }) => {
                         peerID: payload.callerID,
                         peer,
                     });
-                    setPeers(prev => [...prev, { peerID: payload.callerID, peer }]);
+                    // Add to state
+                    setPeers(prev => [...prev, { peerID: payload.callerID, peer, remoteStream: null }]);
                 });
 
                 // 4. Listen for returned signals (answer to our offer)
@@ -60,14 +72,12 @@ const VoiceChatManager = ({ roomCode }) => {
                     }
                 });
 
-                // Now that we represent ready, ask for users
+                // Now that we are ready, ask for users
                 console.log("VC: Requesting users for room", roomCode);
                 socket.emit("join_voice", { roomCode });
             })
             .catch(err => {
                 console.error("Voice Chat Error:", err);
-                // alert("Could not access microphone. Voice chat disabled."); 
-                // Alert removed to avoid annoyance if they just deny it
             });
 
         return () => {
@@ -84,6 +94,7 @@ const VoiceChatManager = ({ roomCode }) => {
 
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
+                setStream(null);
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,6 +120,14 @@ const VoiceChatManager = ({ roomCode }) => {
             socket.emit("sending_signal", { userToSignal, callerID, signal });
         });
 
+        peer.on("stream", remoteStream => {
+            console.log("VC: Initiator received stream", remoteStream.id);
+            // Update state with the received stream
+            setPeers(prev => prev.map(p =>
+                p.peerID === userToSignal ? { ...p, remoteStream } : p
+            ));
+        });
+
         peer.on("connect", () => console.log("VC: Peer Connected!"));
         peer.on("error", err => console.error("VC: Peer Error", err));
 
@@ -119,6 +138,7 @@ const VoiceChatManager = ({ roomCode }) => {
         const peer = new SimplePeer({
             initiator: false,
             trickle: false,
+            // Even if we are receiver, we must pass our stream to send audio back
             stream,
             config: rtcConfig
         });
@@ -126,6 +146,14 @@ const VoiceChatManager = ({ roomCode }) => {
         peer.on("signal", signal => {
             console.log("VC: Returning Signal", { callerID });
             socket.emit("returning_signal", { signal, callerID });
+        });
+
+        peer.on("stream", remoteStream => {
+            console.log("VC: Receiver received stream", remoteStream.id);
+            // Update state with the received stream
+            setPeers(prev => prev.map(p =>
+                p.peerID === callerID ? { ...p, remoteStream } : p
+            ));
         });
 
         peer.on("connect", () => console.log("VC: Peer Connected!"));
@@ -138,8 +166,11 @@ const VoiceChatManager = ({ roomCode }) => {
 
     const toggleMute = () => {
         if (stream) {
-            stream.getAudioTracks()[0].enabled = !stream.getAudioTracks()[0].enabled;
-            setIsMuted(!isMuted);
+            const track = stream.getAudioTracks()[0];
+            if (track) {
+                track.enabled = !track.enabled;
+                setIsMuted(!isMuted);
+            }
         }
     };
 
@@ -150,13 +181,20 @@ const VoiceChatManager = ({ roomCode }) => {
                 onClick={toggleMute}
                 title={isMuted ? "Unmute Mic" : "Mute Mic"}
                 style={{
-                    position: 'absolute',
-                    top: '30px',
-                    left: '90px', // Position next to the Sound button (30px + 50px width + 10px gap)
+                    position: 'fixed',
+                    top: '80px',
+                    left: '20px',
                     background: isMuted ? 'rgba(255, 68, 68, 0.2)' : 'rgba(0,0,0,0.5)',
                     borderColor: isMuted ? '#ff4444' : 'var(--neon-gold)',
                     color: isMuted ? '#ff4444' : 'var(--neon-gold)',
-                    zIndex: 1000
+                    zIndex: 1000,
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid'
                 }}
             >
                 {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
@@ -165,31 +203,49 @@ const VoiceChatManager = ({ roomCode }) => {
             {/* Render Audio Elements for Peers */}
             {peers.map((p, index) => {
                 return (
-                    <AudioPlayer key={p.peerID} peer={p.peer} />
+                    <AudioPlayer
+                        key={p.peerID}
+                        stream={p.remoteStream}
+                        index={index}
+                    />
                 );
             })}
         </>
     );
 };
 
-const AudioPlayer = ({ peer }) => {
+const AudioPlayer = ({ stream, index }) => {
     const ref = useRef();
     const [volume, setVolume] = useState(0);
 
     useEffect(() => {
-        const handleStream = (stream) => {
-            console.log("VC: Received Remote Stream ID:", stream.id);
-            if (ref.current) {
-                ref.current.srcObject = stream;
+        console.log(`VC AudioPlayer[${index}]: Stream prop changed`, stream ? stream.id : 'null');
 
-                // Attempt to play
-                ref.current.play().catch(e => console.error("VC: Play failed (Autoplay limit?):", e));
+        if (ref.current && stream) {
+            ref.current.srcObject = stream;
 
-                // Visualize Audio
+            const playPromise = ref.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => console.error("VC: Play failed:", e));
+            }
+
+            // Visualize Audio
+            let audioContext;
+            let analyser;
+            let animationFrame;
+            let source;
+
+            const setupAudio = async () => {
                 try {
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const source = audioContext.createMediaStreamSource(stream);
-                    const analyser = audioContext.createAnalyser();
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                    // Resume context if suspended (common in browsers)
+                    if (audioContext.state === 'suspended') {
+                        await audioContext.resume();
+                    }
+
+                    source = audioContext.createMediaStreamSource(stream);
+                    analyser = audioContext.createAnalyser();
                     analyser.fftSize = 256;
                     source.connect(analyser);
 
@@ -197,47 +253,77 @@ const AudioPlayer = ({ peer }) => {
 
                     const updateVolume = () => {
                         analyser.getByteFrequencyData(dataArray);
-                        // Get average volume
                         const avg = dataArray.reduce((p, c) => p + c, 0) / dataArray.length;
                         setVolume(avg);
-                        requestAnimationFrame(updateVolume);
+                        animationFrame = requestAnimationFrame(updateVolume);
                     };
                     updateVolume();
                 } catch (err) {
                     console.error("VC: AudioContext Error", err);
                 }
-            }
-        };
+            };
 
-        peer.on("stream", handleStream);
+            setupAudio();
 
-        return () => {
-            // Cleanup handled by ref/peer
-        };
-    }, [peer]);
+            return () => {
+                if (animationFrame) cancelAnimationFrame(animationFrame);
+                if (audioContext && audioContext.state !== 'closed') {
+                    audioContext.close();
+                }
+                // Do NOT stop the tracks here, as the stream belongs to the peer, not this component
+            };
+        }
+    }, [stream, index]);
 
-    // Visual indicator of audio
+    // Even if no stream, we might want to occupy space? No, hide if no stream.
+    if (!stream) return null;
+
+    // Position players: 
+    // They are fixed at bottom right.
+    // Stack them up from the bottom.
+    const bottomOffset = 20 + (index * 80);
+
     return (
-        <div style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 2000 }}>
+        <div style={{
+            position: 'fixed',
+            bottom: `${bottomOffset}px`,
+            right: '20px',
+            zIndex: 2000,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+        }}>
             <audio playsInline autoPlay ref={ref} controls={false} />
             <div style={{
-                width: '20px',
-                height: '60px',
-                background: 'rgba(0,0,0,0.5)',
+                width: '30px',
+                height: '50px',
+                background: 'rgba(0,0,0,0.6)',
                 border: '1px solid #00f2ff',
-                borderRadius: '5px',
+                borderRadius: '8px',
                 overflow: 'hidden',
                 display: 'flex',
-                alignItems: 'flex-end'
+                alignItems: 'flex-end',
+                boxShadow: '0 0 10px rgba(0, 242, 255, 0.3)'
             }}>
                 <div style={{
                     width: '100%',
-                    height: `${Math.min(volume, 100)}%`,
-                    background: '#00f2ff',
-                    transition: 'height 0.1s'
+                    height: `${Math.min(volume * 2, 100)}%`, // Amplify visual
+                    background: 'linear-gradient(to top, #00f2ff, #00ff9d)',
+                    transition: 'height 0.1s ease-out'
                 }} />
             </div>
-            <div style={{ color: 'white', fontSize: '10px' }}>Remote</div>
+            <div style={{
+                color: '#00f2ff',
+                fontSize: '10px',
+                marginTop: '4px',
+                textShadow: '0 0 2px black',
+                fontWeight: 'bold',
+                background: 'rgba(0,0,0,0.5)',
+                padding: '2px 4px',
+                borderRadius: '4px'
+            }}>
+                Player {index + 1}
+            </div>
         </div>
     );
 };
